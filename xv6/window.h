@@ -32,10 +32,12 @@ int Removenode(node* parent, node* r);
 #define MAXWINDOW 20
 #define WINDOWWIDTH 600
 #define WINDOWHEIGHT 400
+#define ICON 1
+#define LIST 2
 
 struct window
 {
-	int wType;					         //type of window,no less than 0;
+	int wType;					        
 	int xPos;                            //窗口左上角的x坐标
 	int yPos;                            //窗口左上角的y坐标
 
