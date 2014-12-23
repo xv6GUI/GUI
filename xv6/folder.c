@@ -1,4 +1,4 @@
-#include "type.h"
+#include "types.h"
 #include "defs.h"
 #include "window.h"
 #include "gui.h"                //undone
