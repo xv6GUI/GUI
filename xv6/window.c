@@ -303,6 +303,18 @@ window* GetWindow(int location)
 	return ptr;
 }
 
+window* get_window_by_icon(int icon)
+{
+	window* win = windowHead->next;
+	while(win != 0)
+	{
+		if (win->wType == icon)
+			return win;
+		win = win->next;
+	}
+	return 0;
+}
+
 //将w放到队列的队首，设置为聚焦
 int FocusWindow(window* w)
 {

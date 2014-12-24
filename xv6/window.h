@@ -59,6 +59,7 @@ void FreeWindow(window* w);
 int AddWindow(int type);
 int CloseWindow();
 window* GetWindow(int location);
+window* get_window_by_icon(int icon);
 int FocusWindow(window* w);
 int MoveWindow(window* w, int dx, int dy);
 window* ClickWindow(int x, int y);
