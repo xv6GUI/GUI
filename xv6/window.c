@@ -234,8 +234,6 @@ void ReleaseWindow(struct Window* aim)
 	aim->Pos_x = 0;
 	aim->Pos_y = 0;
 	aim->ChoosenOne = 0;
-	aim->lay1 = 0;
-	aim->lay2 = 0;
 	NumOfWindow--;
 }
 
@@ -273,8 +271,6 @@ void InitWindow()
 	WindowLine->Pos_y = 0;
 	WindowLine->pre = 0;
 	WindowLine->ChoosenOne = 0;
-	WindowLine->lay1 = 0;
-	WindowLine->lay2 = 0;
 }
 
 struct Window* Add_Window(int icon)
@@ -285,8 +281,6 @@ struct Window* Add_Window(int icon)
 	newWindow->Cur_icon = icon;
 	newWindow->Cur_Node = Root;
 	newWindow->ChoosenOne = 0;
-	newWindow->lay1 = 0;
-	newWindow->lay2 = 0;
 
 	if(WindowLine->next == 0)
 	{
