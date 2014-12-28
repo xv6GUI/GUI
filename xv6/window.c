@@ -21,13 +21,11 @@ void InitNode()
 {
 	int i;
 
+	NumOfNode = 0;
+
 	//初始化结点类型
 	for(i = 0; i < MaxNode; i++)
-	{
 		node[i].type = -1;
-	}
-
-	NumOfNode = 0;
 
 	Root = RequireNode();
 	User_folder = RequireNode();
@@ -155,7 +153,7 @@ int Delete_Node(struct Node* p, int n)
 
 void Rename_Node(struct Node* p, char* newname)
 {
-	strcpy(p->Name,newname);
+	strcpy(p->Name, newname);
 }
 
 struct Node* GetNode(struct Node* p, int n)
@@ -236,10 +234,8 @@ int Remove_Node(struct Node* content, struct Node* old)
 void InitWindow()
 {
 	int i;
-	for(i = 0; i <MaxWindow; i++)
-	{
+	for(i = 0; i < MaxWindow; i++)
 		window[i].Cur_icon = -1;
-	}
 
 	WindowLine = RequireWindow();
 	WindowLine->Cur_icon = 0;
@@ -383,8 +379,8 @@ struct Window* Get_LastWindow()
 
 struct Window* Click_Get_Window(int px, int py)
 {
-	struct Window* ptr = WindowLine->next;
 	int x, y;
+	struct Window* ptr = WindowLine->next;
 	while(ptr)
 	{
 		x = ptr->Pos_x;
@@ -408,14 +404,14 @@ struct Window* get_window_by_icon(int type)
 	return 0;
 };
 
-void Set_Window_Node(struct Window* wd, struct Node* node)
+void Set_Window_Node(struct Window* w, struct Node* node)
 {
-	if(wd && node)
-		wd->Cur_Node = node;
+	if(w && node)
+		w->Cur_Node = node;
 }
 
-void Set_Window_Icon(struct Window* wd, int type)
+void Set_Window_Icon(struct Window* w, int type)
 {
-	if(type >= 0 && wd != 0)
-		wd->Cur_icon = type;
+	if(type >= 0 && w != 0)
+		w->Cur_icon = type;
 }

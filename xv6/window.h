@@ -1,12 +1,12 @@
 #define WindowWidth 660
 #define WindowHeight 400
-#define MaxNode 50
-#define MaxWindow 11
+#define MaxNode 60
+#define MaxWindow 20
 
 ///////////////////////////////////////////////////////////////Node//////////////////////////////////////////////////////////////////////////////
 typedef struct Node
 {
-	int type;																    //1: file; 0: folder;
+	int type;																    //1表示文件，0表示文件夹
 	struct Node* Parent;													    //父结点
 	struct Node* Firstchild;                                                    //第一个孩子
 	struct Node* Lastchild;                                                     //最后一个孩子
@@ -27,13 +27,13 @@ int Remove_Node(struct Node* content, struct Node* old);                        
 //////////////////////////////////////////////////////////////Window//////////////////////////////////////////////////////////////////////////////
 typedef struct Window
 {
-	int Pos_x;																	  //窗口左上角的横坐标
-	int Pos_y;																	  //窗口左上角的纵坐标
 	int Cur_icon;																  //窗口类型
 	int ChoosenOne;																  //内含结点中被选结点的下标
 	struct Node* Cur_Node;														  //内含结点的根结点
 	struct Window* next;														  //下一个窗口
-	struct Window* pre;															  //上一个窗口	
+	struct Window* pre;															  //上一个窗口
+	int Pos_x;																	  //窗口左上角的横坐标
+	int Pos_y;																	  //窗口左上角的纵坐标
 } Window;
 
 void InitWindow();                                                 //初始化窗口内存空间           
@@ -46,8 +46,8 @@ void Focus(struct Window* aim);                                    //把aim指向的
 struct Window* Get_LastWindow();								   //返回最后一个窗口
 struct Window* Click_Get_Window(int px, int py);				   //点击（px,py)返回窗口
 struct Window* get_window_by_icon(int type);                       //返回第一个窗口类型为type的窗口
-void Set_Window_Node(struct Window* wd, struct Node* node);        //将node设置为wd的内含结点
-void Set_Window_Icon(struct Window* wd, int type);                 //设置wd的窗口类型为type
+void Set_Window_Node(struct Window* w, struct Node* node);        //将node设置为w的内含结点
+void Set_Window_Icon(struct Window* w, int type);                 //设置w的窗口类型为type
 
 
 ////////////////////////////////////////////////////////////全局变量/////////////////////////////////////////////////////////////////////////////////

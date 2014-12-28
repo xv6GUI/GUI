@@ -19,7 +19,8 @@ void draw_button(int posX, int posY, int id)
 		for (j = 0; j < FINDER_ICON_SCALE; j++)
 		{
 			//uncertain
-			draw_point(posX + i, posY + j, finder_icon[id][i][j]);
+			if (finder_icon[id][i][j] != 2016)
+				draw_point(posX + i, posY + j, finder_icon[id][i][j]);
 		}
 	}
 }
@@ -33,7 +34,8 @@ void draw_small_icon(int posX, int posY, int type)
 		for (j = 0; j < SMALL_ICON_SCALE; j++)
 		{
 			//uncertain
-			draw_point(posX + i, posY + j, small_icon[type][i][j]);
+			if (small_icon[type][i][j] != 2016)
+				draw_point(posX + i, posY + j, small_icon[type][i][j]);
 		}
 	}
 }
@@ -86,12 +88,12 @@ void InitFolder(struct Window* wd)
 	drawbg(wd->Pos_x, wd->Pos_y + 20, 60, 0xDF7D);
 	drawbg(wd->Pos_x, wd->Pos_y + 80, 300, 0xFFFF);
 	
-	draw_button(wd->Pos_x+20,wd->Pos_y+30,ICON_GRID);
-	draw_button(wd->Pos_x+80,wd->Pos_y+30,ICON_LIST);
-	draw_button(wd->Pos_x+420,wd->Pos_y+30,ICON_UP);
-	draw_button(wd->Pos_x+480,wd->Pos_y+30,ICON_ADDFOLDER);
-	draw_button(wd->Pos_x+540,wd->Pos_y+30,ICON_ADDFILE);
-	draw_button(wd->Pos_x+600,wd->Pos_y+30,ICON_DELETE);
+	draw_button(wd->Pos_x + 20,wd->Pos_y + 30,ICON_GRID);
+	draw_button(wd->Pos_x + 80, wd->Pos_y + 30,ICON_LIST);
+	draw_button(wd->Pos_x + 140,wd->Pos_y + 30,ICON_UP);
+	draw_button(wd->Pos_x + 200,wd->Pos_y + 30,ICON_ADDFOLDER);
+	draw_button(wd->Pos_x + 260,wd->Pos_y + 30,ICON_ADDFILE);
+	draw_button(wd->Pos_x + 320,wd->Pos_y + 30,ICON_DELETE);
 
 	int cur_x = wd->Pos_x;
 	int cur_y = wd->Pos_y;
@@ -99,7 +101,7 @@ void InitFolder(struct Window* wd)
 	int ChoosenOne = wd->ChoosenOne;
 
 	int i, j;
-	for(i = 88; i < WindowWidth-1;i++)
+	for(i = 88; i < WindowWidth - 1;i++)
 		for(j = 1; j < 20;j++)
 			draw_point(i + wd->Pos_x, j + wd->Pos_y, 0x5ACB);
 
@@ -130,12 +132,12 @@ void InitFolder(struct Window* wd)
 				if(ptr->type == 0)
 				{
 					draw_icon(ICON_FOLDER, cur_x, cur_y);
-					draw_string(cur_x+20, cur_y+75, ptr->Name, 0x0);
+					draw_string(cur_x + 20, cur_y + 75, ptr->Name, 0x0);
 
 				}else if(ptr->type == 1)
 				{
 					draw_icon(ICON_FILE, cur_x, cur_y);
-					draw_string(cur_x, cur_y+75, ptr->Name, 0x0);
+					draw_string(cur_x, cur_y + 75, ptr->Name, 0x0);
 				}
 
 				if(cur_x + 180 < wd->Pos_x + WindowWidth)			
@@ -157,13 +159,13 @@ void InitFolder(struct Window* wd)
 			ptr = wd->Cur_Node;
 			ptr = ptr->Firstchild;
 
-			draw_string(cur_x+30, cur_y+10, "Name", 0x0);
-			draw_string(cur_x+250, cur_y+10, "Type", 0x0);
-			draw_string(cur_x+500, cur_y+10, "ChangeDate", 0x0);
+			draw_string(cur_x + 30, cur_y + 10, "Name", 0x0);
+			draw_string(cur_x + 250, cur_y + 10, "Type", 0x0);
+			draw_string(cur_x + 500, cur_y + 10, "ChangeDate", 0x0);
 
 			int i;
 			for(i = 0; i < WindowWidth-1; i++)
-				draw_point(cur_x+i,cur_y+40,0x0);
+				draw_point(cur_x + i, cur_y + 40, 0x0);
 			cur_y += 40;
 
 			int flag = 1;
@@ -174,8 +176,9 @@ void InitFolder(struct Window* wd)
 					break;
 				if(ptr->type == 0)
 				{
-					if(flag%2) drawbg(cur_x+1,cur_y,20,0xDE9C);
-					if(flag == ChoosenOne) drawbg(cur_x+1,cur_y,20,0x867D);
+					if(flag%2) drawbg(cur_x + 1,cur_y,20,0xDE9C);
+					if(flag == ChoosenOne) 
+						drawbg(cur_x + 1,cur_y,20,0x867D);
 					flag++;
 					draw_small_icon(cur_x+20, cur_y+2, SICON_FOLDER);
 					draw_string(cur_x+40, cur_y+2, ptr->Name, 0x0);
@@ -184,7 +187,8 @@ void InitFolder(struct Window* wd)
 				}else if(ptr->type == 1)
 				{
 					if(flag%2) drawbg(cur_x+1,cur_y,20,0xDE9C);
-					if(flag == ChoosenOne) drawbg(cur_x+1,cur_y,20,0x867D);
+					if(flag == ChoosenOne) 
+						drawbg(cur_x+1,cur_y,20,0x867D);
 					flag++;
 					draw_small_icon(cur_x+20, cur_y+2, SICON_FILE);
 					draw_string(cur_x+40, cur_y+2, ptr->Name, 0x0);
@@ -220,10 +224,10 @@ int WindowGetEvent(int px, int py, int type)
 				{
 					if(px > 20 && px < 60) return -1;
 					if(px > 80 && px < 120) return -2;
-					if(px > 420 && px < 460) return -6;
-					if(px > 480 && px < 520) return -3;
-					if(px > 540 && px < 580) return -4;
-					if(px > 600 && px < 640) return -5;
+					if(px > 140 && px < 180) return -6;
+					if(px > 200 && px < 240) return -3;
+					if(px > 260 && px < 300) return -4;
+					if(px > 320 && px < 360) return -5;
 					return 0;
 				}
 			}
@@ -253,10 +257,10 @@ int WindowGetEvent(int px, int py, int type)
 				{
 					if(px > 20 && px < 60) return -1;
 					if(px > 80 && px < 120) return -2;
-					if(px > 420 && px < 460) return -6;
-					if(px > 480 && px < 520) return -3;
-					if(px > 540 && px < 580) return -4;
-					if(px > 600 && px < 640) return -5;
+					if(px > 140 && px < 180) return -6;
+					if(px > 200 && px < 240) return -3;
+					if(px > 260 && px < 300) return -4;
+					if(px > 320 && px < 360) return -5;
 					return 0;
 				}
 			}
