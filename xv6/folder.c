@@ -4,89 +4,87 @@
 #include "defs.h"
 #include "gui.h"
 
+#define FINDER_ICON_SCALE 40    //uncertain
+#define SMALL_ICON_SCALE 15     //uncertain
+
 #define ICON_FINDER 0
 #define LIST_FINDER 8
 
-void draw_button(unsigned int x, unsigned int y, int id)
+//绘制顶栏按钮
+void draw_button(int posX, int posY, int id)
 {
 	int i, j;
-	for(i = 0; i < 40; i++)
+	for (i = 0; i < FINDER_ICON_SCALE; i++)
 	{
-		for(j = 0; j < 40; j++)
+		for (j = 0; j < FINDER_ICON_SCALE; j++)
 		{
-			if(finder_icon[id][i][j] != 2016)
-				draw_point(x + i, y + j, finder_icon[id][i][j]);
+			//uncertain
+			draw_point(posX + i, posY + j, finder_icon[id][i][j]);
 		}
 	}
 }
 
-void draw_small_icon(unsigned int x, unsigned int y, int type)
+//绘制列表图中缩略图标
+void draw_small_icon(int posX, int posY, int type)
 {
 	int i, j;
-	for(i = 0; i < 15; i++)
+	for (i = 0; i < SMALL_ICON_SCALE; i++)
 	{
-		for(j = 0; j < 15; j++)
+		for (j = 0; j < SMALL_ICON_SCALE; j++)
 		{
-			if(small_icon[type][i][j] != 2016)
-				draw_point(x + i, y + j, small_icon[type][i][j]);
+			//uncertain
+			draw_point(posX + i, posY + j, small_icon[type][i][j]);
 		}
 	}
 }
 
-void drawRec(int px, int py, int len)
+//绘制正方形
+void drawRec(int posX, int posY, int length)
 {
 	int i, j;
-	for(i = 0;i < len; i++)
+	for (i = 0; i < length; i++)
 	{
-		draw_point(px+i,py,0x0);
-		draw_point(px+i,py+len,0x0);
+		draw_point(posX + i, posY, 0x0);
+		draw_point(posX + i, posY + length, 0x0);
 	}
-
-	for(j = 0;j < len; j++)
+	for (j = 0; j < length; j++)
 	{
-		draw_point(px,py+j,0x0);
-		draw_point(px+len,py+j,0x0);
+		draw_point(posX, posY + i, 0x0);
+		draw_point(posX + length, posY + i, 0x0);
 	}
 }
 
-
-void drawbg(int px, int py, int height, int color)
+//绘制窗口区域背景
+void drawbg(int posX, int posY, int height, int color)
 {
 	int i, j;
-	for(i = 0; i < WindowWidth-2; i++)
-		for(j = 0; j < height; j++)
+	for (i = 1; i < WindowWidth - 1; i++)
+	{
+		for (j = 1; j < height; j++)
 		{
-			draw_point(px+i, py+j, color);
+			draw_point(posX + i, posY + j, color);
 		}
+	}
 }
 
-void drawbgl(int px, int py, int width, int height, int color)
+//绘制窗口局部背景，如选中图标的背景
+void drawbgl(int posX, int posY, int width, int height, int color)
 {
 	int i, j;
-	for(i = 0; i < width; i++)
-		for(j = 0; j < height; j++)
+	for (i = 0; i < width; i++)
+	{
+		for (j = 0; j < height; j++)
 		{
-			draw_point(px+i, py+j, color);
+			draw_point(posX + i, posY + j, color);
 		}
+	}
 }
 
 void InitFolder(struct Window* wd)
 {
-	int i, j;
-	for(i = 1; i < WindowWidth - 1; i++)
-	{
-		for(j = 20; j < WindowHeight - 20; j++)
-		{
-			if(j < 79)
-			{
-				draw_point(i + wd->Pos_x, j + wd->Pos_y, 0xDF7C);
-			}else if(j == 79){
-				draw_point(i + wd->Pos_x, j + wd->Pos_y, 0x7CAC);
-			}else if(j < 380){
-				draw_point(i + wd->Pos_x, j + wd->Pos_y, 0xFFFF);
-			}
-		}
-	}
+	//绘制背景,uncertain
+	drawbg(wd->Pos_x, wd->Pos_y + 20, 60, 0xDF7D);
+	drawbg(wd->Pos_x, wd->Pos_y + 80, 300, 0xFFFF);
 	
 	draw_button(wd->Pos_x+20,wd->Pos_y+30,ICON_GRID);
 	draw_button(wd->Pos_x+80,wd->Pos_y+30,ICON_LIST);
@@ -100,6 +98,7 @@ void InitFolder(struct Window* wd)
 	int type = wd->Cur_icon;
 	int ChoosenOne = wd->ChoosenOne;
 
+	int i, j;
 	for(i = 88; i < WindowWidth-1;i++)
 		for(j = 1; j < 20;j++)
 			draw_point(i + wd->Pos_x, j + wd->Pos_y, 0x5ACB);
@@ -159,9 +158,8 @@ void InitFolder(struct Window* wd)
 			ptr = ptr->Firstchild;
 
 			draw_string(cur_x+30, cur_y+10, "Name", 0x0);
-			draw_string(cur_x+250, cur_y+10, "ChangeDate", 0x0);
-			draw_string(cur_x+430, cur_y+10, "Type", 0x0);
-			draw_string(cur_x+550, cur_y+10, "Creator", 0x0);
+			draw_string(cur_x+250, cur_y+10, "Type", 0x0);
+			draw_string(cur_x+500, cur_y+10, "ChangeDate", 0x0);
 
 			int i;
 			for(i = 0; i < WindowWidth-1; i++)
@@ -181,9 +179,8 @@ void InitFolder(struct Window* wd)
 					flag++;
 					draw_small_icon(cur_x+20, cur_y+2, SICON_FOLDER);
 					draw_string(cur_x+40, cur_y+2, ptr->Name, 0x0);
-					draw_string(cur_x+250, cur_y+2, "2014/12/27 00:00", 0x0);
-					draw_string(cur_x+430, cur_y+2, "Document", 0x0);
-					draw_string(cur_x+550, cur_y+2, "WangChengpeng", 0x0);
+					draw_string(cur_x+250, cur_y+2, "Document", 0x0);
+					draw_string(cur_x+500, cur_y+2, "2014/12/27 00:00", 0x0);
 				}else if(ptr->type == 1)
 				{
 					if(flag%2) drawbg(cur_x+1,cur_y,20,0xDE9C);
@@ -191,9 +188,8 @@ void InitFolder(struct Window* wd)
 					flag++;
 					draw_small_icon(cur_x+20, cur_y+2, SICON_FILE);
 					draw_string(cur_x+40, cur_y+2, ptr->Name, 0x0);
-					draw_string(cur_x+250, cur_y+2, "2013/12/27 00:00", 0x0);
-					draw_string(cur_x+430, cur_y+2, "File", 0x0);
-					draw_string(cur_x+550, cur_y+2, "WangChengpeng", 0x0);
+					draw_string(cur_x+250, cur_y+2, "File", 0x0);
+					draw_string(cur_x+500, cur_y+2, "2014/12/27 00:00", 0x0);
 				}
 				cur_y += 20;
 				ptr = ptr->Brother;
@@ -284,47 +280,46 @@ int WindowGetEvent(int px, int py, int type)
 
 void Folder(struct Window* wd, int px, int py, int event)
 {
-	//cprintf("icon is %d\n", wd->Cur_icon);
-	int flag = WindowGetEvent(px,py,wd->Cur_icon);
+	int flag = WindowGetEvent(px, py, wd->Cur_icon);
 	
 	switch(flag)
 	{
-		case 0://nothing
+		case 0:
 		{
 			wd->ChoosenOne = 0;
 			break;
 		}
-		case -1://ICON mode
+		case -1:
 		{
 			wd->ChoosenOne = 0;
 			if(event == 1) wd->Cur_icon = ICON_FINDER;
 			break;
 		}
-		case -2://LIST mode
+		case -2:
 		{
 			wd->ChoosenOne = 0;
 			if(event == 1) wd->Cur_icon = LIST_FINDER;
 			break;
 		}
-		case -3://New folder
+		case -3:
 		{
 			wd->ChoosenOne = 0;
 			if(event == 1) Add_Node(wd->Cur_Node,"folder",0);
 			break;
 		}
-		case -4://New file
+		case -4:
 		{
 			wd->ChoosenOne = 0;
 			if(event == 1) Add_Node(wd->Cur_Node,"newfile.txt",1);
 			break;
 		}
-		case -5://delete
+		case -5:
 		{
 			if(event == 1) Delete_Node(wd->Cur_Node, wd->ChoosenOne);
 			wd->ChoosenOne = 0;
 			break;
 		}
-		case -6://up
+		case -6:
 		{
 			if(event == 1 && wd->Cur_Node->Parent != 0) 
 				wd->Cur_Node = wd->Cur_Node->Parent;
@@ -334,10 +329,12 @@ void Folder(struct Window* wd, int px, int py, int event)
 		default:
 		{
 			if(flag <= 0) break;
-			if(event == 1){
-				//cprintf("%d node is choosen\n",event,flag);
+			if(event == 1)
+			{
 				wd->ChoosenOne = flag;
-			}else if(event == 3){
+			}
+			else if(event == 3)
+			{
 				struct Node* curNode = GetNode(wd->Cur_Node, flag);
 				if(curNode != 0 && curNode->type == 0)
 				{
