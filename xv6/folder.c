@@ -307,7 +307,7 @@ void Folder(struct Window* wd, int px, int py, int event)
 		case -3:
 		{
 			wd->FocusOne = 0;
-			if(event == 1) Add_Node(wd->ContentNode,"newfolder",0);
+			if(event == 1) Add_Node(wd->ContentNode,"folder",0);
 			break;
 		}
 		case -4:
