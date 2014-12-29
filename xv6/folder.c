@@ -82,6 +82,7 @@ void drawbgl(int posX, int posY, int width, int height, int color)
 	}
 }
 
+//绘制文件系统
 void InitFolder(struct Window* wd)
 {
 	//绘制背景,uncertain
@@ -90,24 +91,20 @@ void InitFolder(struct Window* wd)
 	
 	draw_button(wd->Pos_x + 20,wd->Pos_y + 30,ICON_GRID);
 	draw_button(wd->Pos_x + 80, wd->Pos_y + 30,ICON_LIST);
-	draw_button(wd->Pos_x + 140,wd->Pos_y + 30,ICON_UP);
-	draw_button(wd->Pos_x + 200,wd->Pos_y + 30,ICON_ADDFOLDER);
-	draw_button(wd->Pos_x + 260,wd->Pos_y + 30,ICON_ADDFILE);
-	draw_button(wd->Pos_x + 320,wd->Pos_y + 30,ICON_DELETE);
+	draw_button(wd->Pos_x + 140,wd->Pos_y + 30,ICON_ADDFOLDER);
+	draw_button(wd->Pos_x + 200,wd->Pos_y + 30,ICON_ADDFILE);
+	draw_button(wd->Pos_x + 260,wd->Pos_y + 30,ICON_DELETE);
+	draw_button(wd->Pos_x + 320,wd->Pos_y + 30,ICON_UP);
 
 	int cur_x = wd->Pos_x;
 	int cur_y = wd->Pos_y;
-	int type = wd->Cur_icon;
-	int ChoosenOne = wd->ChoosenOne;
+	int type = wd->WindowType;
+	int FocusOne = wd->FocusOne;
 
 	int i, j;
 	for(i = 88; i < WindowWidth - 1;i++)
 		for(j = 1; j < 20;j++)
 			draw_point(i + wd->Pos_x, j + wd->Pos_y, 0x5ACB);
-
-	draw_string(wd->Pos_x + 80, wd->Pos_y + 2, ":", 0xFFFF);
-	draw_string(wd->Pos_x + 88, wd->Pos_y + 2, wd->Cur_Node->Name, 0xFFFF);
-
 
 	switch(type)
 	{
@@ -117,7 +114,7 @@ void InitFolder(struct Window* wd)
 			cur_y = wd->Pos_y + 80;
 
 			struct Node* ptr;
-			ptr = wd->Cur_Node;
+			ptr = wd->ContentNode;
 			ptr = ptr->Firstchild;
 
 			int flag = 1;
@@ -127,14 +124,14 @@ void InitFolder(struct Window* wd)
 				if(cur_y + 100 > wd->Pos_y + WindowHeight)
 					break;
 
-				if(flag == ChoosenOne) drawbgl(cur_x,cur_y,75,90,0x867D);
+				if(flag == FocusOne) drawbgl(cur_x,cur_y,75,90,0x867D);
 				flag++;
-				if(ptr->type == 0)
+				if(ptr->NodeType == 0)
 				{
 					draw_icon(ICON_FOLDER, cur_x, cur_y);
 					draw_string(cur_x + 20, cur_y + 75, ptr->Name, 0x0);
 
-				}else if(ptr->type == 1)
+				}else if(ptr->NodeType == 1)
 				{
 					draw_icon(ICON_FILE, cur_x, cur_y);
 					draw_string(cur_x, cur_y + 75, ptr->Name, 0x0);
@@ -156,7 +153,7 @@ void InitFolder(struct Window* wd)
 			cur_x = wd->Pos_x;
 			cur_y = wd->Pos_y + 80;
 			struct Node* ptr;
-			ptr = wd->Cur_Node;
+			ptr = wd->ContentNode;
 			ptr = ptr->Firstchild;
 
 			draw_string(cur_x + 30, cur_y + 10, "Name", 0x0);
@@ -174,26 +171,26 @@ void InitFolder(struct Window* wd)
 			{
 				if(cur_y + 20 > wd->Pos_y + WindowHeight-20)
 					break;
-				if(ptr->type == 0)
+				if(ptr->NodeType == 0)
 				{
 					if(flag%2) drawbg(cur_x + 1,cur_y,20,0xDE9C);
-					if(flag == ChoosenOne) 
+					if(flag == FocusOne) 
 						drawbg(cur_x + 1,cur_y,20,0x867D);
 					flag++;
-					draw_small_icon(cur_x+20, cur_y+2, SICON_FOLDER);
-					draw_string(cur_x+40, cur_y+2, ptr->Name, 0x0);
-					draw_string(cur_x+250, cur_y+2, "Document", 0x0);
-					draw_string(cur_x+500, cur_y+2, "2014/12/27 00:00", 0x0);
-				}else if(ptr->type == 1)
+					draw_small_icon(cur_x + 20, cur_y + 2, SICON_FOLDER);
+					draw_string(cur_x + 40, cur_y + 2, ptr->Name, 0x0);
+					draw_string(cur_x + 250, cur_y + 2, "Document", 0x0);
+					draw_string(cur_x + 500, cur_y + 2, "2014/12/27 00:00", 0x0);
+				}else if(ptr->NodeType == 1)
 				{
-					if(flag%2) drawbg(cur_x+1,cur_y,20,0xDE9C);
-					if(flag == ChoosenOne) 
-						drawbg(cur_x+1,cur_y,20,0x867D);
+					if(flag%2) drawbg(cur_x + 1,cur_y,20,0xDE9C);
+					if(flag == FocusOne) 
+						drawbg(cur_x + 1,cur_y,20,0x867D);
 					flag++;
-					draw_small_icon(cur_x+20, cur_y+2, SICON_FILE);
-					draw_string(cur_x+40, cur_y+2, ptr->Name, 0x0);
-					draw_string(cur_x+250, cur_y+2, "File", 0x0);
-					draw_string(cur_x+500, cur_y+2, "2014/12/27 00:00", 0x0);
+					draw_small_icon(cur_x + 20, cur_y + 2, SICON_FILE);
+					draw_string(cur_x + 40, cur_y + 2, ptr->Name, 0x0);
+					draw_string(cur_x + 250, cur_y + 2, "File", 0x0);
+					draw_string(cur_x + 500, cur_y + 2, "2014/12/27 00:00", 0x0);
 				}
 				cur_y += 20;
 				ptr = ptr->Brother;
@@ -208,6 +205,7 @@ void InitFolder(struct Window* wd)
 	}
 }
 
+//用划分区域法获取点击响应参数
 int WindowGetEvent(int px, int py, int type)
 {
 	switch(type)
@@ -224,10 +222,10 @@ int WindowGetEvent(int px, int py, int type)
 				{
 					if(px > 20 && px < 60) return -1;
 					if(px > 80 && px < 120) return -2;
-					if(px > 140 && px < 180) return -6;
-					if(px > 200 && px < 240) return -3;
-					if(px > 260 && px < 300) return -4;
-					if(px > 320 && px < 360) return -5;
+					if(px > 140 && px < 180) return -3;
+					if(px > 200 && px < 240) return -4;
+					if(px > 260 && px < 300) return -5;
+					if(px > 320 && px < 360) return -6;
 					return 0;
 				}
 			}
@@ -257,10 +255,10 @@ int WindowGetEvent(int px, int py, int type)
 				{
 					if(px > 20 && px < 60) return -1;
 					if(px > 80 && px < 120) return -2;
-					if(px > 140 && px < 180) return -6;
-					if(px > 200 && px < 240) return -3;
-					if(px > 260 && px < 300) return -4;
-					if(px > 320 && px < 360) return -5;
+					if(px > 140 && px < 180) return -3;
+					if(px > 200 && px < 240) return -4;
+					if(px > 260 && px < 300) return -5;
+					if(px > 320 && px < 360) return -6;
 					return 0;
 				}
 			}
@@ -282,52 +280,53 @@ int WindowGetEvent(int px, int py, int type)
 	return 0;
 }
 
+//处理点击响应，px,py为点击坐标,event表示单击或双击，wd为窗体
 void Folder(struct Window* wd, int px, int py, int event)
 {
-	int flag = WindowGetEvent(px, py, wd->Cur_icon);
+	int flag = WindowGetEvent(px, py, wd->WindowType);
 	
 	switch(flag)
 	{
 		case 0:
 		{
-			wd->ChoosenOne = 0;
+			wd->FocusOne = 0;
 			break;
 		}
 		case -1:
 		{
-			wd->ChoosenOne = 0;
-			if(event == 1) wd->Cur_icon = ICON_FINDER;
+			wd->FocusOne = 0;
+			if(event == 1) wd->WindowType = ICON_FINDER;
 			break;
 		}
 		case -2:
 		{
-			wd->ChoosenOne = 0;
-			if(event == 1) wd->Cur_icon = LIST_FINDER;
+			wd->FocusOne = 0;
+			if(event == 1) wd->WindowType = LIST_FINDER;
 			break;
 		}
 		case -3:
 		{
-			wd->ChoosenOne = 0;
-			if(event == 1) Add_Node(wd->Cur_Node,"folder",0);
+			wd->FocusOne = 0;
+			if(event == 1) Add_Node(wd->ContentNode,"newfolder",0);
 			break;
 		}
 		case -4:
 		{
-			wd->ChoosenOne = 0;
-			if(event == 1) Add_Node(wd->Cur_Node,"newfile.txt",1);
+			wd->FocusOne = 0;
+			if(event == 1) Add_Node(wd->ContentNode,"file.doc",1);
 			break;
 		}
 		case -5:
 		{
-			if(event == 1) Delete_Node(wd->Cur_Node, wd->ChoosenOne);
-			wd->ChoosenOne = 0;
+			if(event == 1) Delete_Node(wd->ContentNode, wd->FocusOne);
+			wd->FocusOne = 0;
 			break;
 		}
 		case -6:
 		{
-			if(event == 1 && wd->Cur_Node->Parent != 0) 
-				wd->Cur_Node = wd->Cur_Node->Parent;
-			wd->ChoosenOne = 0;
+			if(event == 1 && wd->ContentNode->Parent != 0) 
+				wd->ContentNode = wd->ContentNode->Parent;
+			wd->FocusOne = 0;
 			break;
 		}
 		default:
@@ -335,17 +334,17 @@ void Folder(struct Window* wd, int px, int py, int event)
 			if(flag <= 0) break;
 			if(event == 1)
 			{
-				wd->ChoosenOne = flag;
+				wd->FocusOne = flag;
 			}
 			else if(event == 3)
 			{
-				struct Node* curNode = GetNode(wd->Cur_Node, flag);
-				if(curNode != 0 && curNode->type == 0)
+				struct Node* curNode = GetNode(wd->ContentNode, flag);
+				if(curNode != 0 && curNode->NodeType == 0)
 				{
-					wd->Cur_Node = curNode;
-					wd->ChoosenOne = 0;
+					wd->ContentNode = curNode;
+					wd->FocusOne = 0;
 				}
-				else wd->ChoosenOne = 0; 
+				else wd->FocusOne = 0; 
 			}
 			break;
 		}

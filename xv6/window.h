@@ -6,7 +6,7 @@
 ///////////////////////////////////////////////////////////////Node//////////////////////////////////////////////////////////////////////////////
 typedef struct Node
 {
-	int type;																    //1表示文件，0表示文件夹
+	int NodeType;																//1表示文件，0表示文件夹
 	struct Node* Parent;													    //父结点
 	struct Node* Firstchild;                                                    //第一个孩子
 	struct Node* Lastchild;                                                     //最后一个孩子
@@ -27,9 +27,9 @@ int Remove_Node(struct Node* content, struct Node* old);                        
 //////////////////////////////////////////////////////////////Window//////////////////////////////////////////////////////////////////////////////
 typedef struct Window
 {
-	int Cur_icon;																  //窗口类型
-	int ChoosenOne;																  //内含结点中被选结点的下标
-	struct Node* Cur_Node;														  //内含结点的根结点
+	int WindowType;																  //窗口类型
+	int FocusOne;																  //内含结点中被选结点的下标
+	struct Node* ContentNode;												      //内含结点的根结点
 	struct Window* next;														  //下一个窗口
 	struct Window* pre;															  //上一个窗口
 	int Pos_x;																	  //窗口左上角的横坐标
@@ -46,19 +46,18 @@ void Focus(struct Window* aim);                                    //把aim指向的
 struct Window* Get_LastWindow();								   //返回最后一个窗口
 struct Window* Click_Get_Window(int px, int py);				   //点击（px,py)返回窗口
 struct Window* get_window_by_icon(int type);                       //返回第一个窗口类型为type的窗口
-void Set_Window_Node(struct Window* w, struct Node* node);        //将node设置为w的内含结点
-void Set_Window_Icon(struct Window* w, int type);                 //设置w的窗口类型为type
+void Set_Window_Node(struct Window* w, struct Node* node);         //将node设置为w的内含结点
+void Set_Window_Icon(struct Window* w, int type);                  //设置w的窗口类型为type
 
 
 ////////////////////////////////////////////////////////////全局变量/////////////////////////////////////////////////////////////////////////////////
-int NumOfNode;                                //已申请的结点数
-int NumOfWindow;                              //已申请的窗口数
 struct Window window[MaxWindow];              //模拟的窗口内存块
 struct Node node[MaxNode];                    //模拟的结点内存块
+int NumOfNode;                                //已申请的结点数
+int NumOfWindow;                              //已申请的窗口数
 struct Window* WindowLine;                    //窗口队列
 struct Node* Root;                            //根结点
-struct Node* User_folder;                     //用户文件夹
-struct Node* Readme_file;                     //文件
+struct Node* InfoFile;                        //消息文件
 
 
 
