@@ -124,14 +124,16 @@ void InitFolder(struct Window* wd)
 				if(cur_y + 100 > wd->Pos_y + WindowHeight)
 					break;
 
-				if(flag == FocusOne) drawbgl(cur_x,cur_y,75,90,0x867D);
+				if(flag == FocusOne) 
+					drawbgl(cur_x,cur_y,75,90,0x867D);
 				flag++;
 				if(ptr->NodeType == 0)
 				{
 					draw_icon(ICON_FOLDER, cur_x, cur_y);
 					draw_string(cur_x + 20, cur_y + 75, ptr->Name, 0x0);
 
-				}else if(ptr->NodeType == 1)
+				}
+				else if(ptr->NodeType == 1)
 				{
 					draw_icon(ICON_FILE, cur_x, cur_y);
 					draw_string(cur_x, cur_y + 75, ptr->Name, 0x0);
@@ -139,7 +141,8 @@ void InitFolder(struct Window* wd)
 
 				if(cur_x + 180 < wd->Pos_x + WindowWidth)			
 					cur_x += 90;
-				else{
+				else
+				{
 					cur_x = wd->Pos_x + 15;
 					cur_y += 100;
 				}
@@ -173,17 +176,20 @@ void InitFolder(struct Window* wd)
 					break;
 				if(ptr->NodeType == 0)
 				{
-					if(flag%2) drawbg(cur_x + 1,cur_y,20,0xDE9C);
+					if(flag % 2 == 1) 
+						drawbg(cur_x + 1,cur_y,20,0xDE9C);
 					if(flag == FocusOne) 
 						drawbg(cur_x + 1,cur_y,20,0x867D);
 					flag++;
 					draw_small_icon(cur_x + 20, cur_y + 2, SICON_FOLDER);
 					draw_string(cur_x + 40, cur_y + 2, ptr->Name, 0x0);
-					draw_string(cur_x + 250, cur_y + 2, "Document", 0x0);
+					draw_string(cur_x + 250, cur_y + 2, "Folder", 0x0);
 					draw_string(cur_x + 500, cur_y + 2, "2014/12/27 00:00", 0x0);
-				}else if(ptr->NodeType == 1)
+				}
+				else if(ptr->NodeType == 1)
 				{
-					if(flag%2) drawbg(cur_x + 1,cur_y,20,0xDE9C);
+					if(flag % 2 == 1) 
+						drawbg(cur_x + 1,cur_y,20,0xDE9C);
 					if(flag == FocusOne) 
 						drawbg(cur_x + 1,cur_y,20,0x867D);
 					flag++;
