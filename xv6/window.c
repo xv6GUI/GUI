@@ -8,12 +8,14 @@
 #include "spinlock.h"
 #include "window.h"
 
-////////////////////////////////////////functions of node//////////////////////////////////////////////////
+///////////////////////////////////////////////////////////functions of node//////////////////////////////////////////////////
 char* strcpy(char *s, char *t)
 {
     char *temp;
     temp = s;
+
     while((*s++ = *t++) != 0);
+
     return temp;
 }
 
@@ -67,13 +69,13 @@ struct Node* RequireNode()
 	}
 }
 
-void ReleaseNode(struct Node* n)
+void ReleaseNode(struct Node* p)
 {
-	n->Parent = 0;
-	n->Firstchild = 0;
-	n->Lastchild = 0;
-	n->Brother = 0;
-	n->NodeType = -1;
+	p->Parent = 0;
+	p->Firstchild = 0;
+	p->Lastchild = 0;
+	p->Brother = 0;
+	p->NodeType = -1;
 	NumOfNode--;
 }
 
@@ -86,8 +88,10 @@ int Add_Node(struct Node* currentNode, char* newName, int newType)
 	else if(currentNode->Firstchild == 0)
 	{
 		p = RequireNode();
+
 		if(p == 0) 
 			return -2;
+
 		p->Parent = currentNode;
 		currentNode->Firstchild = p;
 		currentNode->Lastchild = p;
@@ -102,44 +106,33 @@ int Add_Node(struct Node* currentNode, char* newName, int newType)
 	else
 	{
 		p = RequireNode();
+
 		if(p == 0) 
 			return -3;
+
 		p->Parent = currentNode;
 		p->Firstchild = 0;
 		p->Lastchild = 0;
 		p->Brother = 0;
 		strcpy(p->Name, newName);
 		p->NodeType = newType;
+
 		currentNode->Lastchild->Brother = p;
 		currentNode->Lastchild = p;
 		return 0;
 	}
 }
 
-struct Node* GetNode(struct Node* p, int n)
-{
-	if(n < 1) 
-		return 0;
-
-	struct Node* ptr = p;
-	struct Node* s = ptr->Firstchild;
-	int count = 1;
-	while(count < n && s != 0)
-	{
-		s = s->Brother;
-		count++;
-	}
-
-	return s;
-}
-
 int Delete_Node(struct Node* p, int n)
 {
-	if(n < 1) return -1;
+	if(n < 1) 
+		return -1;
+
 	struct Node* ptr = p;
 	struct Node* t = ptr;
 	struct Node* s = ptr->Firstchild;
 	int count = 1;
+
 	while(count < n && s != 0)
 	{
 		t = s;
@@ -147,28 +140,22 @@ int Delete_Node(struct Node* p, int n)
 		count++;
 	}
 
-	if(s == 0) return -1;
+	if(s == 0) 
+		return -1;
+
 	if(t == ptr)
 	{
 		ptr->Firstchild = s->Brother;
 		t = 0;
-	}else
-	{
-		t->Brother = s->Brother;
 	}
+	else
+		t->Brother = s->Brother;
 
 	if(s == ptr->Lastchild)
-	{
 		ptr->Lastchild = t;
-	}
 
 	ReleaseNode(s);
 	return 0;
-}
-
-void Rename_Node(struct Node* p, char* newname)
-{
-	strcpy(p->Name, newname);
 }
 
 int Remove_Node(struct Node* content, struct Node* old)
@@ -227,7 +214,31 @@ int Remove_Node(struct Node* content, struct Node* old)
 		}
 	}
 }
-////////////////////////////////////////////functions of window//////////////////////////////////////////////
+
+void Rename_Node(struct Node* p, char* newname)
+{
+	strcpy(p->Name, newname);
+}
+
+struct Node* GetNode(struct Node* p, int n)
+{
+	if(n < 1) 
+		return 0;
+
+	int num = 1;
+	struct Node* ptr = p;
+	struct Node* s = ptr->Firstchild;
+	
+	while(num < n && s != 0)
+	{
+		num++;
+		s = s->Brother;
+	}
+
+	return s;
+}
+
+//////////////////////////////////////////////////////functions of window//////////////////////////////////////////////
 
 void InitWindow()
 {
@@ -310,8 +321,9 @@ struct Window* Add_Window(int icon)
 		ptr->pre = nw;
 		WindowLine->next = nw;
 
-		nw->Pos_x = 20;
-		nw->Pos_y = 20;
+		//保持窗口间的间距，方便窗口选择点击
+		nw->Pos_x = 30 + ptr->Pos_x;
+		nw->Pos_y = 30 + ptr->Pos_y;
 	}
 	return nw;
 }
@@ -344,6 +356,27 @@ void Move_Window(struct Window* aim, int px, int py)
 		aim->Pos_x += px;
 		aim->Pos_y += py;
 	}
+}
+
+void Set_Window_Node(struct Window* w, struct Node* node)
+{
+	if (w == 0)
+		return;
+	if (node->NodeType == 1)
+		return;
+
+	if (node->NodeType == 0)
+		w->ContentNode = node;
+}
+
+void Set_Window_Icon(struct Window* w, int type)
+{
+	if (w == 0)
+		return;
+	if (type < 0)
+		return;
+
+	w->WindowType = type;
 }
 
 void Focus(struct Window* aim)
@@ -400,16 +433,4 @@ struct Window* get_window_by_icon(int type)
 			break;
 	}
 	return ptr;
-};
-
-void Set_Window_Node(struct Window* w, struct Node* node)
-{
-	if(w != 0 && node->NodeType != 0)
-		w->ContentNode = node;
-}
-
-void Set_Window_Icon(struct Window* w, int type)
-{
-	if(type >= 0 && w != 0)
-		w->WindowType = type;
 }

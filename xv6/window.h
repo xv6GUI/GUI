@@ -17,12 +17,13 @@ typedef struct Node
 char* strcpy(char *s, char *t);                                                 //将t指向的字符串拷贝到s中，返回拷贝后的字符串指针
 void InitNode();																//初始化结点空间
 struct Node* RequireNode();														//申请内存空间
-void ReleaseNode(struct Node* n);												//释放结点n指向的内存空间  
+void ReleaseNode(struct Node* p);												//释放结点n指向的内存空间  
 int Add_Node(struct Node* currentNode, char* newName, int newType);				//添加指定名称和类型的结点到当前结点处
 int Delete_Node(struct Node* p, int n);											//删除结点p的第n个孩子
+int Remove_Node(struct Node* content, struct Node* old);                        //复制old到content目录下，其中content为folder
 void Rename_Node(struct Node* p, char* newname);								//将结点p的名称更改为newname
 struct Node* GetNode(struct Node* p, int n);                                    //获得结点p的第n个孩子
-int Remove_Node(struct Node* content, struct Node* old);                        //复制old到content目录下，其中content为folder
+
 
 //////////////////////////////////////////////////////////////Window//////////////////////////////////////////////////////////////////////////////
 typedef struct Window
@@ -42,12 +43,13 @@ void ReleaseWindow(struct Window* w);                              //释放w指向的
 struct Window* Add_Window(int icon);                               //增加窗口类型为icon的窗口
 void Close_Window();                                               //关闭窗口
 void Move_Window(struct Window* aim, int px, int py);              //移动aim窗口，距离分别为px.py
+void Set_Window_Node(struct Window* w, struct Node* node);         //将node设置为w的内含结点
+void Set_Window_Icon(struct Window* w, int type);                  //设置w的窗口类型为type
 void Focus(struct Window* aim);                                    //把aim指向的窗口设置为最前    
 struct Window* Get_LastWindow();								   //返回最后一个窗口
 struct Window* Click_Get_Window(int px, int py);				   //点击（px,py)返回窗口
 struct Window* get_window_by_icon(int type);                       //返回第一个窗口类型为type的窗口
-void Set_Window_Node(struct Window* w, struct Node* node);         //将node设置为w的内含结点
-void Set_Window_Icon(struct Window* w, int type);                  //设置w的窗口类型为type
+
 
 
 ////////////////////////////////////////////////////////////全局变量/////////////////////////////////////////////////////////////////////////////////

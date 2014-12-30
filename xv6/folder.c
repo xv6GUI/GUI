@@ -7,7 +7,7 @@
 #define FINDER_ICON_SCALE 40    //uncertain
 #define SMALL_ICON_SCALE 15     //uncertain
 
-#define ICON_FINDER 0
+#define ICON_FINDER 0           
 #define LIST_FINDER 8
 
 //»æÖÆ¶¥À¸°´Å¥
@@ -127,6 +127,7 @@ void InitFolder(struct Window* wd)
 				if(flag == FocusOne) 
 					drawbgl(cur_x,cur_y,75,90,0x867D);
 				flag++;
+
 				if(ptr->NodeType == 0)
 				{
 					draw_icon(ICON_FOLDER, cur_x, cur_y);
@@ -198,8 +199,8 @@ void InitFolder(struct Window* wd)
 					draw_string(cur_x + 250, cur_y + 2, "File", 0x0);
 					draw_string(cur_x + 500, cur_y + 2, "2014/12/27 00:00", 0x0);
 				}
-				cur_y += 20;
 				ptr = ptr->Brother;
+				cur_y += 20;
 			}
 			break;
 		}
@@ -241,10 +242,10 @@ int WindowGetEvent(int px, int py, int type)
 				int newx = px - 15;
 				int newy = py - 80;
 
-				int ix = (newx / 90) + 1;
-				int iy = (newy / 100);
+				int nx = (newx / 90) + 1;
+				int ny = (newy / 100);
 
-				int result = ix + (iy * 7);
+				int result = nx + (ny * 7);
 				return result;
 			}
 			break;
@@ -272,8 +273,8 @@ int WindowGetEvent(int px, int py, int type)
 			{
 				if(py <= 120) return 0;
 				int newy = py - 120;
-				int iy = (newy / 20) + 1;
-				return iy;
+				int ny = (newy / 20) + 1;
+				return ny;
 			}
 			break;
 		}
@@ -301,30 +302,35 @@ void Folder(struct Window* wd, int px, int py, int event)
 		case -1:
 		{
 			wd->FocusOne = 0;
-			if(event == 1) wd->WindowType = ICON_FINDER;
+			if(event == 1) 
+				wd->WindowType = ICON_FINDER;
 			break;
 		}
 		case -2:
 		{
 			wd->FocusOne = 0;
-			if(event == 1) wd->WindowType = LIST_FINDER;
+			if(event == 1) 
+				wd->WindowType = LIST_FINDER;
 			break;
 		}
 		case -3:
 		{
 			wd->FocusOne = 0;
-			if(event == 1) Add_Node(wd->ContentNode,"folder",0);
+			if(event == 1) 
+				Add_Node(wd->ContentNode,"folder",0);
 			break;
 		}
 		case -4:
 		{
 			wd->FocusOne = 0;
-			if(event == 1) Add_Node(wd->ContentNode,"file.doc",1);
+			if(event == 1) 
+				Add_Node(wd->ContentNode,"file.doc",1);
 			break;
 		}
 		case -5:
 		{
-			if(event == 1) Delete_Node(wd->ContentNode, wd->FocusOne);
+			if(event == 1) 
+				Delete_Node(wd->ContentNode, wd->FocusOne);
 			wd->FocusOne = 0;
 			break;
 		}
@@ -345,6 +351,7 @@ void Folder(struct Window* wd, int px, int py, int event)
 			else if(event == 3)
 			{
 				struct Node* curNode = GetNode(wd->ContentNode, flag);
+
 				if(curNode != 0 && curNode->NodeType == 0)
 				{
 					wd->ContentNode = curNode;
@@ -355,6 +362,7 @@ void Folder(struct Window* wd, int px, int py, int event)
 			break;
 		}
 	}
+
 	InitFolder(wd);
 	display_to_screen(wd->Pos_x, wd->Pos_y, WindowWidth, WindowHeight);
 }
