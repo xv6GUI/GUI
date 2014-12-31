@@ -26,7 +26,13 @@ void InitNode()
 	//初始化结点类型
 	int i;
 	for(i = 0; i < MaxNode; i++)
+	{
 		node[i].NodeType = -1;
+		node[i].Parent = 0;
+		node[i].Firstchild = 0;
+		node[i].Lastchild = 0;
+		node[i].Brother = 0;
+	}
 
 	Root = RequireNode();
 	InfoFile = RequireNode();
