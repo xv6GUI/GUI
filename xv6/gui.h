@@ -48,5 +48,6 @@
 #define KBD_UP -3
 #define KBD_DOWN -4
 #define KBD_ESC -5
+#define KBD_END -6
 
 #endif

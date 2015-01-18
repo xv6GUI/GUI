@@ -7,7 +7,7 @@
 
 static int flag_caps = 0;
 static int flag_shift = 0;
-static int flag = 0;
+static int flag_event = 0;
 
 void
 kbdintr(void)
@@ -16,13 +16,12 @@ kbdintr(void)
   ch = inb(0x64);
   if((ch & 0x01) == 0)
   {
-    //cprintf("no data\n");
     return;
   }
 
   ch = inb(0x60);
 
-  //press down
+  //press down, interrupt
   if((ch & 0x80) == 0)
   {
     //flag
@@ -37,7 +36,6 @@ kbdintr(void)
     //caps lock
     if(togglecode[ch] == CAPSLOCK)
     {
-      //cprintf("caps\n");
       flag_caps = 1;
       return;
     }
@@ -77,43 +75,49 @@ kbdintr(void)
 
     //cprintf("ch: %d\n", ch);
 
-    if(ch == 1)
-      flag = KBD_ESC;
-    else if(ch == 75)
-      flag = KBD_LEFT;
-    else if(ch == 77)
-      flag = KBD_RIGHT;
-    else if(ch == 72)
-      flag = KBD_UP;
-    else if(ch == 80)
-      flag = KBD_DOWN;
-    else
-      flag = 0;
+    switch (ch) {
+      case 1: 
+        flag_event = KBD_ESC;
+        break;
+      case 75:
+        flag_event = KBD_LEFT;
+        break;
+      case 77:
+        flag_event = KBD_RIGHT;
+        break;
+      case 72:
+        flag_event = KBD_UP;
+        break;
+      case 80:
+        flag_event = KBD_DOWN;
+        break;
+      case 79:
+        flag_event = KBD_END;
+        break;
+      default:
+        flag_event = 0;
+        break;
+    }
 
     int cur_icon = WindowLine->next->Cur_icon;
     if(cur_icon == ICON_TEXT)
     {
-      kbd_text(result, flag);
+      kbd_text(result, flag_event);
     }
     else if(cur_icon == ICON_PHOTO)
-      photo(result, flag);
+      photo(result, flag_event);
   }
   //release
-  else
-  {
+  else {
     ch = ch & 0x7F;
 
     //caps lock
-    if(togglecode[ch] == CAPSLOCK)
-    {
-      //cprintf("caps\n");
+    if(togglecode[ch] == CAPSLOCK) {
       flag_caps = 0;
     }
 
     //shift
-    if(shiftcode[ch] == flag_shift)
-    {
-      //cprintf("shift\n");
+    if(shiftcode[ch] == flag_shift) {
       flag_shift = NO;
     }
 
