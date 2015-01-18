@@ -24,9 +24,9 @@ struct elfhdr {
 // Program section header
 struct proghdr {
   uint type;
-  uint off;
-  uint vaddr;
-  uint paddr;
+  uint offset;
+  uint va;
+  uint pa;
   uint filesz;
   uint memsz;
   uint flags;

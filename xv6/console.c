@@ -9,7 +9,6 @@
 #include "spinlock.h"
 #include "fs.h"
 #include "file.h"
-#include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
 #include "x86.h"
@@ -24,36 +23,34 @@ static struct {
 } cons;
 
 static void
-printint(int xx, int base, int sign)
+printint(int xx, int base, int sgn)
 {
   static char digits[] = "0123456789abcdef";
   char buf[16];
-  int i;
+  int i = 0, neg = 0;
   uint x;
 
-  if(sign && (sign = xx < 0))
+  if(sgn && xx < 0){
+    neg = 1;
     x = -xx;
-  else
+  } else
     x = xx;
 
-  i = 0;
   do{
     buf[i++] = digits[x % base];
   }while((x /= base) != 0);
-
-  if(sign)
+  if(neg)
     buf[i++] = '-';
 
   while(--i >= 0)
     consputc(buf[i]);
 }
-//PAGEBREAK: 50
 
 // Print to the console. only understands %d, %x, %p, %s.
 void
 cprintf(char *fmt, ...)
 {
-  int i, c, locking;
+  int i, c, state, locking;
   uint *argp;
   char *s;
 
@@ -61,10 +58,8 @@ cprintf(char *fmt, ...)
   if(locking)
     acquire(&cons.lock);
 
-  if (fmt == 0)
-    panic("null fmt");
-
   argp = (uint*)(void*)(&fmt + 1);
+  state = 0;
   for(i = 0; (c = fmt[i] & 0xff) != 0; i++){
     if(c != '%'){
       consputc(c);
@@ -121,10 +116,9 @@ panic(char *s)
     ;
 }
 
-//PAGEBREAK: 50
 #define BACKSPACE 0x100
 #define CRTPORT 0x3d4
-static ushort *crt = (ushort*)P2V(0xb8000);  // CGA memory
+static ushort *crt = (ushort*)0xb8000;  // CGA memory
 
 static void
 cgaputc(int c)

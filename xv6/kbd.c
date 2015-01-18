@@ -2,7 +2,126 @@
 #include "x86.h"
 #include "defs.h"
 #include "kbd.h"
+#include "window.h"
+#include "gui.h"
 
+static int flag_caps = 0;
+static int flag_shift = 0;
+static int flag = 0;
+
+void
+kbdintr(void)
+{
+  uint ch;
+  ch = inb(0x64);
+  if((ch & 0x01) == 0)
+  {
+    //cprintf("no data\n");
+    return;
+  }
+
+  ch = inb(0x60);
+
+  //press down
+  if((ch & 0x80) == 0)
+  {
+    //flag
+    int flag_temp;
+    flag_temp = shiftcode[ch];
+    if(flag_temp != NO)
+    {
+      flag_shift = flag_temp;
+      return;
+    }
+
+    //caps lock
+    if(togglecode[ch] == CAPSLOCK)
+    {
+      //cprintf("caps\n");
+      flag_caps = 1;
+      return;
+    }
+
+    //get result
+    char result;
+    if(flag_caps == 0)
+    {
+      switch(flag_shift)
+      {
+        case SHIFT:
+          result = shiftmap[ch];
+          break;
+        case CTL:
+          result = ctlmap[ch];
+          break;
+        default:
+          result = normalmap[ch];
+          break;
+      }
+    }
+    else
+    {
+      switch(flag_shift)
+      {
+        case SHIFT:
+          result = normalmap[ch];
+          break;
+        case CTL:
+          result = ctlmap[ch];
+          break;
+        default:
+          result = shiftmap[ch];
+          break;
+      }
+    }
+
+    //cprintf("ch: %d\n", ch);
+
+    if(ch == 1)
+      flag = KBD_ESC;
+    else if(ch == 75)
+      flag = KBD_LEFT;
+    else if(ch == 77)
+      flag = KBD_RIGHT;
+    else if(ch == 72)
+      flag = KBD_UP;
+    else if(ch == 80)
+      flag = KBD_DOWN;
+    else
+      flag = 0;
+
+    int cur_icon = WindowLine->next->Cur_icon;
+    if(cur_icon == ICON_TEXT)
+    {
+      kbd_text(result, flag);
+    }
+    else if(cur_icon == ICON_PHOTO)
+      photo(result, flag);
+  }
+  //release
+  else
+  {
+    ch = ch & 0x7F;
+
+    //caps lock
+    if(togglecode[ch] == CAPSLOCK)
+    {
+      //cprintf("caps\n");
+      flag_caps = 0;
+    }
+
+    //shift
+    if(shiftcode[ch] == flag_shift)
+    {
+      //cprintf("shift\n");
+      flag_shift = NO;
+    }
+
+    return;
+  }
+}
+
+/*
 int
 kbdgetc(void)
 {
@@ -42,9 +161,4 @@ kbdgetc(void)
   }
   return c;
 }
-
-void
-kbdintr(void)
-{
-  consoleintr(kbdgetc);
-}
+*/

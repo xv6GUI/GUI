@@ -48,15 +48,6 @@ stosb(void *addr, int data, int cnt)
                "memory", "cc");
 }
 
-static inline void
-stosl(void *addr, int data, int cnt)
-{
-  asm volatile("cld; rep stosl" :
-               "=D" (addr), "=c" (cnt) :
-               "0" (addr), "1" (cnt), "a" (data) :
-               "memory", "cc");
-}
-
 struct segdesc;
 
 static inline void
@@ -105,6 +96,22 @@ loadgs(ushort v)
   asm volatile("movw %0, %%gs" : : "r" (v));
 }
 
+static inline uint
+rebp(void)
+{
+  uint val;
+  asm volatile("movl %%ebp,%0" : "=r" (val));
+  return val;
+}
+
+static inline uint
+resp(void)
+{
+  uint val;
+  asm volatile("movl %%esp,%0" : "=r" (val));
+  return val;
+}
+
 static inline void
 cli(void)
 {
@@ -130,6 +137,20 @@ xchg(volatile uint *addr, uint newval)
   return result;
 }
 
+static inline void
+lcr0(uint val)
+{
+  asm volatile("movl %0,%%cr0" : : "r" (val));
+}
+
+static inline uint
+rcr0(void)
+{
+  uint val;
+  asm volatile("movl %%cr0,%0" : "=r" (val));
+  return val;
+}
+
 static inline uint
 rcr2(void)
 {
@@ -144,7 +165,14 @@ lcr3(uint val)
   asm volatile("movl %0,%%cr3" : : "r" (val));
 }
 
-//PAGEBREAK: 36
+static inline uint
+rcr3(void)
+{
+  uint val;
+  asm volatile("movl %%cr3,%0" : "=r" (val));
+  return val;
+}
+
 // Layout of the trap frame built on the stack by the
 // hardware and by trapasm.S, and passed to trap().
 struct trapframe {

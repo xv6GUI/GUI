@@ -1,4 +1,6 @@
-#include "mmu.h"
+#define SEG_KCODE 1  // kernel code
+#define SEG_KDATA 2  // kernel data+stack
+#define SEG_KCPU  3  // kernel per-cpu data
 
   # vectors.S sends all traps here.
 .globl alltraps

@@ -1,19 +1,26 @@
 // Segments in proc->gdt.
+// Also known to bootasm.S and trapasm.S
+#define SEG_KCODE 1  // kernel code
+#define SEG_KDATA 2  // kernel data+stack
+#define SEG_KCPU  3  // kernel per-cpu data
+#define SEG_UCODE 4  // user code
+#define SEG_UDATA 5  // user data+stack
+#define SEG_TSS   6  // this process's task state
 #define NSEGS     7
 
 // Per-CPU state
 struct cpu {
   uchar id;                    // Local APIC ID; index into cpus[] below
-  struct context *scheduler;   // swtch() here to enter scheduler
+  struct context *scheduler;   // Switch here to enter scheduler
   struct taskstate ts;         // Used by x86 to find stack for interrupt
   struct segdesc gdt[NSEGS];   // x86 global descriptor table
-  volatile uint started;       // Has the CPU started?
+  volatile uint booted;        // Has the CPU started?
   int ncli;                    // Depth of pushcli nesting.
   int intena;                  // Were interrupts enabled before pushcli?
   
   // Cpu-local storage variables; see below
   struct cpu *cpu;
-  struct proc *proc;           // The currently-running process.
+  struct proc *proc;
 };
 
 extern struct cpu cpus[NCPU];
@@ -22,15 +29,14 @@ extern int ncpu;
 // Per-CPU variables, holding pointers to the
 // current cpu and to the current process.
 // The asm suffix tells gcc to use "%gs:0" to refer to cpu
-// and "%gs:4" to refer to proc.  seginit sets up the
+// and "%gs:4" to refer to proc.  ksegment sets up the
 // %gs segment register so that %gs refers to the memory
 // holding those two variables in the local cpu's struct cpu.
 // This is similar to how thread-local variables are implemented
 // in thread libraries such as Linux pthreads.
-extern struct cpu *cpu asm("%gs:0");       // &cpus[cpunum()]
-extern struct proc *proc asm("%gs:4");     // cpus[cpunum()].proc
+extern struct cpu *cpu asm("%gs:0");       // This cpu.
+extern struct proc *proc asm("%gs:4");     // Current proc on this cpu.
 
-//PAGEBREAK: 17
 // Saved registers for kernel context switches.
 // Don't need to save all the segment registers (%cs, etc),
 // because they are constant across kernel contexts.
@@ -54,13 +60,13 @@ enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 // Per-process state
 struct proc {
   uint sz;                     // Size of process memory (bytes)
-  pde_t* pgdir;                // Page table
+  pde_t* pgdir;                // Linear address of proc's pgdir
   char *kstack;                // Bottom of kernel stack for this process
   enum procstate state;        // Process state
-  int pid;                     // Process ID
+  volatile int pid;            // Process ID
   struct proc *parent;         // Parent process
   struct trapframe *tf;        // Trap frame for current syscall
-  struct context *context;     // swtch() here to run process
+  struct context *context;     // Switch here to run process
   void *chan;                  // If non-zero, sleeping on chan
   int killed;                  // If non-zero, have been killed
   struct file *ofile[NOFILE];  // Open files

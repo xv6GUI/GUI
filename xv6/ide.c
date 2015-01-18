@@ -3,7 +3,6 @@
 #include "types.h"
 #include "defs.h"
 #include "param.h"
-#include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
 #include "x86.h"
@@ -93,11 +92,11 @@ ideintr(void)
 {
   struct buf *b;
 
-  // First queued buffer is the active request.
+  // Take first buffer off queue.
   acquire(&idelock);
   if((b = idequeue) == 0){
     release(&idelock);
-    // cprintf("spurious IDE interrupt\n");
+    cprintf("Spurious IDE interrupt.\n");
     return;
   }
   idequeue = b->qnext;
@@ -118,7 +117,6 @@ ideintr(void)
   release(&idelock);
 }
 
-//PAGEBREAK!
 // Sync buf with disk. 
 // If B_DIRTY is set, write buf to disk, clear B_DIRTY, set B_VALID.
 // Else if B_VALID is not set, read buf from disk, set B_VALID.
@@ -132,13 +130,13 @@ iderw(struct buf *b)
   if((b->flags & (B_VALID|B_DIRTY)) == B_VALID)
     panic("iderw: nothing to do");
   if(b->dev != 0 && !havedisk1)
-    panic("iderw: ide disk 1 not present");
+    panic("idrw: ide disk 1 not present");
 
-  acquire(&idelock);  //DOC:acquire-lock
+  acquire(&idelock);
 
   // Append b to idequeue.
   b->qnext = 0;
-  for(pp=&idequeue; *pp; pp=&(*pp)->qnext)  //DOC:insert-queue
+  for(pp=&idequeue; *pp; pp=&(*pp)->qnext)
     ;
   *pp = b;
   
@@ -147,7 +145,8 @@ iderw(struct buf *b)
     idestart(b);
   
   // Wait for request to finish.
-  while((b->flags & (B_VALID|B_DIRTY)) != B_VALID){
+  // Assuming will not sleep too long: ignore proc->killed.
+  while((b->flags & (B_VALID|B_DIRTY)) != B_VALID) {
     sleep(b, &idelock);
   }
 

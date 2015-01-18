@@ -3,10 +3,7 @@
 
 // Block 0 is unused.
 // Block 1 is super block.
-// Blocks 2 through sb.ninodes/IPB hold inodes.
-// Then free bitmap blocks holding sb.size bits.
-// Then sb.nblocks data blocks.
-// Then sb.nlog log blocks.
+// Inodes start at block 2.
 
 #define ROOTINO 1  // root i-number
 #define BSIZE 512  // block size
@@ -16,7 +13,6 @@ struct superblock {
   uint size;         // Size of file system image (blocks)
   uint nblocks;      // Number of data blocks
   uint ninodes;      // Number of inodes.
-  uint nlog;         // Number of log blocks
 };
 
 #define NDIRECT 12

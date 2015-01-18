@@ -1,7 +1,6 @@
 #include "types.h"
 #include "defs.h"
 #include "param.h"
-#include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
 #include "x86.h"
@@ -32,7 +31,6 @@ idtinit(void)
   lidt(idt, sizeof(idt));
 }
 
-//PAGEBREAK: 41
 void
 trap(struct trapframe *tf)
 {
@@ -60,11 +58,15 @@ trap(struct trapframe *tf)
     ideintr();
     lapiceoi();
     break;
-  case T_IRQ0 + IRQ_IDE+1:
-    // Bochs generates spurious IDE1 interrupts.
-    break;
+  //kbd trap
   case T_IRQ0 + IRQ_KBD:
     kbdintr();
+    lapiceoi();
+    break;
+  //mouse trap
+  case T_IRQ0 + IRQ_MOUS:
+    //mouseintr(ticks);
+    mouseintr();
     lapiceoi();
     break;
   case T_IRQ0 + IRQ_COM1:
@@ -78,7 +80,6 @@ trap(struct trapframe *tf)
     lapiceoi();
     break;
    
-  //PAGEBREAK: 13
   default:
     if(proc == 0 || (tf->cs&3) == 0){
       // In kernel, it must be our mistake.

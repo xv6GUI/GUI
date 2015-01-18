@@ -1,11 +1,10 @@
-// Multiprocessor support
+// Multiprocessor bootstrap.
 // Search memory for MP description structures.
 // http://developer.intel.com/design/pentium/datashts/24201606.pdf
 
 #include "types.h"
 #include "defs.h"
 #include "param.h"
-#include "memlayout.h"
 #include "mp.h"
 #include "x86.h"
 #include "mmu.h"
@@ -36,11 +35,11 @@ sum(uchar *addr, int len)
 
 // Look for an MP structure in the len bytes at addr.
 static struct mp*
-mpsearch1(uint a, int len)
+mpsearch1(uchar *addr, int len)
 {
-  uchar *e, *p, *addr;
+  uchar *e, *p;
 
-  addr = p2v(a);
+  cprintf("mpsearch1 0x%x %d\n", addr, len);
   e = addr+len;
   for(p = addr; p < e; p += sizeof(struct mp))
     if(memcmp(p, "_MP_", 4) == 0 && sum(p, sizeof(struct mp)) == 0)
@@ -60,16 +59,16 @@ mpsearch(void)
   uint p;
   struct mp *mp;
 
-  bda = (uchar *) P2V(0x400);
-  if((p = ((bda[0x0F]<<8)| bda[0x0E]) << 4)){
-    if((mp = mpsearch1(p, 1024)))
+  bda = (uchar*)0x400;
+  if((p = ((bda[0x0F]<<8)|bda[0x0E]) << 4)){
+    if((mp = mpsearch1((uchar*)p, 1024)))
       return mp;
   } else {
     p = ((bda[0x14]<<8)|bda[0x13])*1024;
-    if((mp = mpsearch1(p-1024, 1024)))
+    if((mp = mpsearch1((uchar*)p-1024, 1024)))
       return mp;
   }
-  return mpsearch1(0xF0000, 0x10000);
+  return mpsearch1((uchar*)0xF0000, 0x10000);
 }
 
 // Search for an MP configuration table.  For now,
@@ -85,7 +84,7 @@ mpconfig(struct mp **pmp)
 
   if((mp = mpsearch()) == 0 || mp->physaddr == 0)
     return 0;
-  conf = (struct mpconf*) p2v((uint) mp->physaddr);
+  conf = (struct mpconf*)mp->physaddr;
   if(memcmp(conf, "PCMP", 4) != 0)
     return 0;
   if(conf->version != 1 && conf->version != 4)
@@ -114,9 +113,9 @@ mpinit(void)
     switch(*p){
     case MPPROC:
       proc = (struct mpproc*)p;
-      if(ncpu != proc->apicid){
-        cprintf("mpinit: ncpu=%d apicid=%d\n", ncpu, proc->apicid);
-        ismp = 0;
+      if(ncpu != proc->apicid) {
+        cprintf("mpinit: ncpu=%d apicpid=%d", ncpu, proc->apicid);
+        panic("mpinit");
       }
       if(proc->flags & MPBOOT)
         bcpu = &cpus[ncpu];
@@ -136,17 +135,9 @@ mpinit(void)
       continue;
     default:
       cprintf("mpinit: unknown config type %x\n", *p);
-      ismp = 0;
+      panic("mpinit");
     }
   }
-  if(!ismp){
-    // Didn't like what we found; fall back to no MP.
-    ncpu = 1;
-    lapic = 0;
-    ioapicid = 0;
-    return;
-  }
-
   if(mp->imcrp){
     // Bochs doesn't support IMCR, so this doesn't run on Bochs.
     // But it would on real hardware.

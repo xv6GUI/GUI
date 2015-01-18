@@ -1,7 +1,6 @@
 #include "types.h"
 #include "defs.h"
 #include "param.h"
-#include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
 #include "x86.h"
@@ -13,28 +12,28 @@
 // library system call function. The saved user %esp points
 // to a saved program counter, and then the first argument.
 
-// Fetch the int at addr from the current process.
+// Fetch the int at addr from process p.
 int
-fetchint(uint addr, int *ip)
+fetchint(struct proc *p, uint addr, int *ip)
 {
-  if(addr >= proc->sz || addr+4 > proc->sz)
+  if(addr >= p->sz || addr+4 > p->sz)
     return -1;
   *ip = *(int*)(addr);
   return 0;
 }
 
-// Fetch the nul-terminated string at addr from the current process.
+// Fetch the nul-terminated string at addr from process p.
 // Doesn't actually copy the string - just sets *pp to point at it.
 // Returns length of string, not including nul.
 int
-fetchstr(uint addr, char **pp)
+fetchstr(struct proc *p, uint addr, char **pp)
 {
   char *s, *ep;
 
-  if(addr >= proc->sz)
+  if(addr >= p->sz)
     return -1;
-  *pp = (char*)addr;
-  ep = (char*)proc->sz;
+  *pp = (char *) addr;
+  ep = (char *) p->sz;
   for(s = *pp; s < ep; s++)
     if(*s == 0)
       return s - *pp;
@@ -45,7 +44,8 @@ fetchstr(uint addr, char **pp)
 int
 argint(int n, int *ip)
 {
-  return fetchint(proc->tf->esp + 4 + 4*n, ip);
+  int x = fetchint(proc, proc->tf->esp + 4 + 4*n, ip);
+  return x;
 }
 
 // Fetch the nth word-sized system call argument as a pointer
@@ -58,9 +58,9 @@ argptr(int n, char **pp, int size)
   
   if(argint(n, &i) < 0)
     return -1;
-  if((uint)i >= proc->sz || (uint)i+size > proc->sz)
+  if((uint)i >= proc->sz || (uint)i+size >= proc->sz)
     return -1;
-  *pp = (char*)i;
+  *pp = (char *) i;
   return 0;
 }
 
@@ -74,7 +74,7 @@ argstr(int n, char **pp)
   int addr;
   if(argint(n, &addr) < 0)
     return -1;
-  return fetchstr(addr, pp);
+  return fetchstr(proc, addr, pp);
 }
 
 extern int sys_chdir(void);
@@ -100,38 +100,38 @@ extern int sys_write(void);
 extern int sys_uptime(void);
 
 static int (*syscalls[])(void) = {
-[SYS_fork]    sys_fork,
-[SYS_exit]    sys_exit,
-[SYS_wait]    sys_wait,
-[SYS_pipe]    sys_pipe,
-[SYS_read]    sys_read,
-[SYS_kill]    sys_kill,
-[SYS_exec]    sys_exec,
-[SYS_fstat]   sys_fstat,
 [SYS_chdir]   sys_chdir,
+[SYS_close]   sys_close,
 [SYS_dup]     sys_dup,
+[SYS_exec]    sys_exec,
+[SYS_exit]    sys_exit,
+[SYS_fork]    sys_fork,
+[SYS_fstat]   sys_fstat,
 [SYS_getpid]  sys_getpid,
-[SYS_sbrk]    sys_sbrk,
-[SYS_sleep]   sys_sleep,
-[SYS_uptime]  sys_uptime,
-[SYS_open]    sys_open,
-[SYS_write]   sys_write,
-[SYS_mknod]   sys_mknod,
-[SYS_unlink]  sys_unlink,
+[SYS_kill]    sys_kill,
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
-[SYS_close]   sys_close,
+[SYS_mknod]   sys_mknod,
+[SYS_open]    sys_open,
+[SYS_pipe]    sys_pipe,
+[SYS_read]    sys_read,
+[SYS_sbrk]    sys_sbrk,
+[SYS_sleep]   sys_sleep,
+[SYS_unlink]  sys_unlink,
+[SYS_wait]    sys_wait,
+[SYS_write]   sys_write,
+[SYS_uptime]  sys_uptime,
 };
 
 void
 syscall(void)
 {
   int num;
-
+  
   num = proc->tf->eax;
-  if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
+  if(num >= 0 && num < NELEM(syscalls) && syscalls[num])
     proc->tf->eax = syscalls[num]();
-  } else {
+  else {
     cprintf("%d %s: unknown sys call %d\n",
             proc->pid, proc->name, num);
     proc->tf->eax = -1;

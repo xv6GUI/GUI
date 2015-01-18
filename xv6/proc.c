@@ -1,7 +1,6 @@
 #include "types.h"
 #include "defs.h"
 #include "param.h"
-#include "memlayout.h"
 #include "mmu.h"
 #include "x86.h"
 #include "proc.h"
@@ -26,10 +25,45 @@ pinit(void)
   initlock(&ptable.lock, "ptable");
 }
 
-//PAGEBREAK: 32
+// Print a process listing to console.  For debugging.
+// Runs when user types ^P on console.
+// No lock to avoid wedging a stuck machine further.
+void
+procdump(void)
+{
+  static char *states[] = {
+  [UNUSED]    "unused",
+  [EMBRYO]    "embryo",
+  [SLEEPING]  "sleep ",
+  [RUNNABLE]  "runble",
+  [RUNNING]   "run   ",
+  [ZOMBIE]    "zombie"
+  };
+  int i;
+  struct proc *p;
+  char *state;
+  uint pc[10];
+  
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->state == UNUSED)
+      continue;
+    if(p->state >= 0 && p->state < NELEM(states) && states[p->state])
+      state = states[p->state];
+    else
+      state = "???";
+    cprintf("%d %s %s", p->pid, state, p->name);
+    if(p->state == SLEEPING){
+      getcallerpcs((uint*)p->context->ebp+2, pc);
+      for(i=0; i<10 && pc[i] != 0; i++)
+        cprintf(" %p", pc[i]);
+    }
+    cprintf("\n");
+  }
+}
+
+
 // Look in the process table for an UNUSED proc.
-// If found, change state to EMBRYO and initialize
-// state required to run in the kernel.
+// If found, change state to EMBRYO and return it.
 // Otherwise return 0.
 static struct proc*
 allocproc(void)
@@ -49,7 +83,7 @@ found:
   p->pid = nextpid++;
   release(&ptable.lock);
 
-  // Allocate kernel stack.
+  // Allocate kernel stack if possible.
   if((p->kstack = kalloc()) == 0){
     p->state = UNUSED;
     return 0;
@@ -61,7 +95,7 @@ found:
   p->tf = (struct trapframe*)sp;
   
   // Set up new context to start executing at forkret,
-  // which returns to trapret.
+  // which returns to trapret (see below).
   sp -= 4;
   *(uint*)sp = (uint)trapret;
 
@@ -69,11 +103,9 @@ found:
   p->context = (struct context*)sp;
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
-
   return p;
 }
 
-//PAGEBREAK: 32
 // Set up first user process.
 void
 userinit(void)
@@ -83,7 +115,7 @@ userinit(void)
   
   p = allocproc();
   initproc = p;
-  if((p->pgdir = setupkvm()) == 0)
+  if(!(p->pgdir = setupkvm()))
     panic("userinit: out of memory?");
   inituvm(p->pgdir, _binary_initcode_start, (int)_binary_initcode_size);
   p->sz = PGSIZE;
@@ -107,14 +139,12 @@ userinit(void)
 int
 growproc(int n)
 {
-  uint sz;
-  
-  sz = proc->sz;
+  uint sz = proc->sz;
   if(n > 0){
-    if((sz = allocuvm(proc->pgdir, sz, sz + n)) == 0)
+    if(!(sz = allocuvm(proc->pgdir, sz, sz + n)))
       return -1;
   } else if(n < 0){
-    if((sz = deallocuvm(proc->pgdir, sz, sz + n)) == 0)
+    if(!(sz = deallocuvm(proc->pgdir, sz, sz + n)))
       return -1;
   }
   proc->sz = sz;
@@ -136,7 +166,7 @@ fork(void)
     return -1;
 
   // Copy process state from p.
-  if((np->pgdir = copyuvm(proc->pgdir, proc->sz)) == 0){
+  if(!(np->pgdir = copyuvm(proc->pgdir, proc->sz))){
     kfree(np->kstack);
     np->kstack = 0;
     np->state = UNUSED;
@@ -153,16 +183,10 @@ fork(void)
     if(proc->ofile[i])
       np->ofile[i] = filedup(proc->ofile[i]);
   np->cwd = idup(proc->cwd);
-
-  safestrcpy(np->name, proc->name, sizeof(proc->name));
  
   pid = np->pid;
-
-  // lock to force the compiler to emit the np->state write last.
-  acquire(&ptable.lock);
   np->state = RUNNABLE;
-  release(&ptable.lock);
-  
+  safestrcpy(np->name, proc->name, sizeof(proc->name));
   return pid;
 }
 
@@ -186,9 +210,7 @@ exit(void)
     }
   }
 
-  begin_op();
   iput(proc->cwd);
-  end_op();
   proc->cwd = 0;
 
   acquire(&ptable.lock);
@@ -254,7 +276,6 @@ wait(void)
   }
 }
 
-//PAGEBREAK: 42
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.
 // Scheduler never returns.  It loops, doing:
@@ -330,17 +351,8 @@ yield(void)
 void
 forkret(void)
 {
-  static int first = 1;
   // Still holding ptable.lock from scheduler.
   release(&ptable.lock);
-
-  if (first) {
-    // Some initialization functions must be run in the context
-    // of a regular process (e.g., they call sleep), and thus cannot 
-    // be run from main().
-    first = 0;
-    initlog();
-  }
   
   // Return to "caller", actually trapret (see allocproc).
 }
@@ -382,7 +394,6 @@ sleep(void *chan, struct spinlock *lk)
   }
 }
 
-//PAGEBREAK!
 // Wake up all processes sleeping on chan.
 // The ptable lock must be held.
 static void
@@ -427,39 +438,3 @@ kill(int pid)
   return -1;
 }
 
-//PAGEBREAK: 36
-// Print a process listing to console.  For debugging.
-// Runs when user types ^P on console.
-// No lock to avoid wedging a stuck machine further.
-void
-procdump(void)
-{
-  static char *states[] = {
-  [UNUSED]    "unused",
-  [EMBRYO]    "embryo",
-  [SLEEPING]  "sleep ",
-  [RUNNABLE]  "runble",
-  [RUNNING]   "run   ",
-  [ZOMBIE]    "zombie"
-  };
-  int i;
-  struct proc *p;
-  char *state;
-  uint pc[10];
-  
-  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-    if(p->state == UNUSED)
-      continue;
-    if(p->state >= 0 && p->state < NELEM(states) && states[p->state])
-      state = states[p->state];
-    else
-      state = "???";
-    cprintf("%d %s %s", p->pid, state, p->name);
-    if(p->state == SLEEPING){
-      getcallerpcs((uint*)p->context->ebp+2, pc);
-      for(i=0; i<10 && pc[i] != 0; i++)
-        cprintf(" %p", pc[i]);
-    }
-    cprintf("\n");
-  }
-}

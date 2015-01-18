@@ -7,7 +7,7 @@
 // 
 // Interface:
 // * To get a buffer for a particular disk block, call bread.
-// * After changing buffer data, call bwrite to write it to disk.
+// * After changing buffer data, call bwrite to flush it to disk.
 // * When done with the buffer, call brelse.
 // * Do not use the buffer after calling brelse.
 // * Only one process at a time can use a buffer,
@@ -16,7 +16,8 @@
 // The implementation uses three state flags internally:
 // * B_BUSY: the block has been returned from bread
 //     and has not been passed back to brelse.  
-// * B_VALID: the buffer data has been read from the disk.
+// * B_VALID: the buffer data has been initialized
+//     with the associated disk block contents.
 // * B_DIRTY: the buffer data has been modified
 //     and needs to be written to disk.
 
@@ -42,7 +43,6 @@ binit(void)
 
   initlock(&bcache.lock, "bcache");
 
-//PAGEBREAK!
   // Create linked list of buffers
   bcache.head.prev = &bcache.head;
   bcache.head.next = &bcache.head;
@@ -56,8 +56,8 @@ binit(void)
 }
 
 // Look through buffer cache for sector on device dev.
-// If not found, allocate a buffer.
-// In either case, return B_BUSY buffer.
+// If not found, allocate fresh block.
+// In either case, return locked buffer.
 static struct buf*
 bget(uint dev, uint sector)
 {
@@ -66,7 +66,7 @@ bget(uint dev, uint sector)
   acquire(&bcache.lock);
 
  loop:
-  // Is the sector already cached?
+  // Try for cached block.
   for(b = bcache.head.next; b != &bcache.head; b = b->next){
     if(b->dev == dev && b->sector == sector){
       if(!(b->flags & B_BUSY)){
@@ -79,11 +79,9 @@ bget(uint dev, uint sector)
     }
   }
 
-  // Not cached; recycle some non-busy and clean buffer.
-  // "clean" because B_DIRTY and !B_BUSY means log.c
-  // hasn't yet committed the changes to the buffer.
+  // Allocate fresh block.
   for(b = bcache.head.prev; b != &bcache.head; b = b->prev){
-    if((b->flags & B_BUSY) == 0 && (b->flags & B_DIRTY) == 0){
+    if((b->flags & B_BUSY) == 0){
       b->dev = dev;
       b->sector = sector;
       b->flags = B_BUSY;
@@ -106,7 +104,7 @@ bread(uint dev, uint sector)
   return b;
 }
 
-// Write b's contents to disk.  Must be B_BUSY.
+// Write b's contents to disk.  Must be locked.
 void
 bwrite(struct buf *b)
 {
@@ -116,8 +114,7 @@ bwrite(struct buf *b)
   iderw(b);
 }
 
-// Release a B_BUSY buffer.
-// Move to the head of the MRU list.
+// Release the buffer b.
 void
 brelse(struct buf *b)
 {
@@ -138,6 +135,4 @@ brelse(struct buf *b)
 
   release(&bcache.lock);
 }
-//PAGEBREAK!
-// Blank page.
 

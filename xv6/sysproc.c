@@ -1,9 +1,7 @@
 #include "types.h"
 #include "x86.h"
 #include "defs.h"
-#include "date.h"
 #include "param.h"
-#include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
 
@@ -78,7 +76,7 @@ sys_sleep(void)
 }
 
 // return how many clock tick interrupts have occurred
-// since start.
+// since boot.
 int
 sys_uptime(void)
 {

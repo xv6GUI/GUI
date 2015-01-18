@@ -1,25 +1,46 @@
 #include "asm.h"
-#include "memlayout.h"
-#include "mmu.h"
 
 # Start the first CPU: switch to 32-bit protected mode, jump into C.
 # The BIOS loads this code from the first sector of the hard disk into
 # memory at physical address 0x7c00 and starts executing in real mode
 # with %cs=0 %ip=7c00.
 
+#define SEG_KCODE 1  // kernel code
+#define SEG_KDATA 2  // kernel data+stack
+
+#define CR0_PE    1  // protected mode enable bit
+
 .code16                       # Assemble for 16-bit mode
 .globl start
 start:
-  cli                         # BIOS enabled interrupts; disable
+  cli                         # Disable interrupts
+  # VGA MODE
+  # movb $0x00, %ah
+  # movb $0x13, %al
+  # int $0x10
 
-  # Zero data segment registers DS, ES, and SS.
-  xorw    %ax,%ax             # Set %ax to zero
+  # VESA MODE
+  movw    $0x4f02, %ax
+  movw    $0x4114, %bx
+  int     $0x10
+
+  mov     $0x9000, %bx
+  mov     %bx, %es
+  mov     $0x0, %di
+  mov     $0x4f01, %ax
+  mov     $0x4114, %bx
+  int     $0x10
+  
+  # Set up the important data segment registers (DS, ES, SS).
+  xorw    %ax,%ax             # Segment number zero
   movw    %ax,%ds             # -> Data Segment
   movw    %ax,%es             # -> Extra Segment
   movw    %ax,%ss             # -> Stack Segment
 
-  # Physical address line A20 is tied to zero so that the first PCs 
-  # with 2 MB would run software that assumed 1 MB.  Undo that.
+  # Enable A20:
+  #   For backwards compatibility with the earliest PCs, physical
+  #   address line 20 is tied low, so that addresses higher than
+  #   1MB wrap around to zero by default.  This code undoes this.
 seta20.1:
   inb     $0x64,%al               # Wait for not busy
   testb   $0x2,%al
@@ -36,21 +57,22 @@ seta20.2:
   movb    $0xdf,%al               # 0xdf -> port 0x60
   outb    %al,$0x60
 
-  # Switch from real to protected mode.  Use a bootstrap GDT that makes
-  # virtual addresses map directly to physical addresses so that the
-  # effective memory map doesn't change during the transition.
+  # Switch from real to protected mode, using a bootstrap GDT
+  # and segment translation that makes virtual addresses 
+  # identical to physical addresses, so that the 
+  # effective memory map does not change during the switch.
   lgdt    gdtdesc
   movl    %cr0, %eax
   orl     $CR0_PE, %eax
   movl    %eax, %cr0
-
-//PAGEBREAK!
-  # Complete transition to 32-bit protected mode by using long jmp
-  # to reload %cs and %eip.  The segment descriptors are set up with no
-  # translation, so that the mapping is still the identity mapping.
+  
+  # This ljmp is how you load the CS (Code Segment) register.
+  # SEG_ASM produces segment descriptors with the 32-bit mode
+  # flag set (the D flag), so addresses and word operands will
+  # default to 32 bits after this jump.
   ljmp    $(SEG_KCODE<<3), $start32
 
-.code32  # Tell assembler to generate 32-bit code now.
+.code32                       # Assemble for 32-bit mode
 start32:
   # Set up the protected-mode data segment registers
   movw    $(SEG_KDATA<<3), %ax    # Our data segment selector
@@ -85,4 +107,3 @@ gdt:
 gdtdesc:
   .word   (gdtdesc - gdt - 1)             # sizeof(gdt) - 1
   .long   gdt                             # address gdt
-

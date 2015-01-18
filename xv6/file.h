@@ -9,7 +9,8 @@ struct file {
 };
 
 
-// in-memory copy of an inode
+// in-core file system types
+
 struct inode {
   uint dev;           // Device number
   uint inum;          // Inode number
@@ -23,11 +24,13 @@ struct inode {
   uint size;
   uint addrs[NDIRECT+1];
 };
+
 #define I_BUSY 0x1
 #define I_VALID 0x2
 
-// table mapping major device number to
-// device functions
+
+// device implementations
+
 struct devsw {
   int (*read)(struct inode*, char*, int);
   int (*write)(struct inode*, char*, int);
@@ -36,6 +39,3 @@ struct devsw {
 extern struct devsw devsw[];
 
 #define CONSOLE 1
-
-//PAGEBREAK!
-// Blank page.

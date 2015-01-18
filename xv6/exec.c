@@ -1,6 +1,5 @@
 #include "types.h"
 #include "param.h"
-#include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
 #include "defs.h"
@@ -10,21 +9,20 @@
 int
 exec(char *path, char **argv)
 {
-  char *s, *last;
-  int i, off;
-  uint argc, sz, sp, ustack[3+MAXARG+1];
+  char *mem, *s, *last;
+  int i, argc, arglen, len, off;
+  uint sz, sp, spbottom, argp;
   struct elfhdr elf;
   struct inode *ip;
   struct proghdr ph;
   pde_t *pgdir, *oldpgdir;
 
-  begin_op();
-  if((ip = namei(path)) == 0){
-    end_op();
-    return -1;
-  }
-  ilock(ip);
   pgdir = 0;
+  sz = 0;
+
+  if((ip = namei(path)) == 0)
+    return -1;
+  ilock(ip);
 
   // Check ELF header
   if(readi(ip, (char*)&elf, 0, sizeof(elf)) < sizeof(elf))
@@ -32,11 +30,10 @@ exec(char *path, char **argv)
   if(elf.magic != ELF_MAGIC)
     goto bad;
 
-  if((pgdir = setupkvm()) == 0)
+  if(!(pgdir = setupkvm()))
     goto bad;
 
   // Load program into memory.
-  sz = 0;
   for(i=0, off=elf.phoff; i<elf.phnum; i++, off+=sizeof(ph)){
     if(readi(ip, (char*)&ph, off, sizeof(ph)) != sizeof(ph))
       goto bad;
@@ -44,41 +41,44 @@ exec(char *path, char **argv)
       continue;
     if(ph.memsz < ph.filesz)
       goto bad;
-    if((sz = allocuvm(pgdir, sz, ph.vaddr + ph.memsz)) == 0)
+    if(!(sz = allocuvm(pgdir, sz, ph.va + ph.memsz)))
       goto bad;
-    if(loaduvm(pgdir, (char*)ph.vaddr, ip, ph.off, ph.filesz) < 0)
+    if(!loaduvm(pgdir, (char *)ph.va, ip, ph.offset, ph.filesz))
       goto bad;
   }
   iunlockput(ip);
-  end_op();
-  ip = 0;
 
-  // Allocate two pages at the next page boundary.
-  // Make the first inaccessible.  Use the second as the user stack.
-  sz = PGROUNDUP(sz);
-  if((sz = allocuvm(pgdir, sz, sz + 2*PGSIZE)) == 0)
+  // Allocate and initialize stack at sz
+  sz = spbottom = PGROUNDUP(sz);
+  if(!(sz = allocuvm(pgdir, sz, sz + PGSIZE)))
     goto bad;
-  clearpteu(pgdir, (char*)(sz - 2*PGSIZE));
+  mem = uva2ka(pgdir, (char *)spbottom);
+
+  arglen = 0;
+  for(argc=0; argv[argc]; argc++)
+    arglen += strlen(argv[argc]) + 1;
+  arglen = (arglen+3) & ~3;
+
   sp = sz;
+  argp = sz - arglen - 4*(argc+1);
 
-  // Push argument strings, prepare rest of stack in ustack.
-  for(argc = 0; argv[argc]; argc++) {
-    if(argc >= MAXARG)
-      goto bad;
-    sp = (sp - (strlen(argv[argc]) + 1)) & ~3;
-    if(copyout(pgdir, sp, argv[argc], strlen(argv[argc]) + 1) < 0)
-      goto bad;
-    ustack[3+argc] = sp;
+  // Copy argv strings and pointers to stack.
+  *(uint*)(mem+argp-spbottom + 4*argc) = 0;  // argv[argc]
+  for(i=argc-1; i>=0; i--){
+    len = strlen(argv[i]) + 1;
+    sp -= len;
+    memmove(mem+sp-spbottom, argv[i], len);
+    *(uint*)(mem+argp-spbottom + 4*i) = sp;  // argv[i]
   }
-  ustack[3+argc] = 0;
 
-  ustack[0] = 0xffffffff;  // fake return PC
-  ustack[1] = argc;
-  ustack[2] = sp - (argc+1)*4;  // argv pointer
-
-  sp -= (3+argc+1) * 4;
-  if(copyout(pgdir, sp, ustack, (3+argc+1)*4) < 0)
-    goto bad;
+  // Stack frame for main(argc, argv), below arguments.
+  sp = argp;
+  sp -= 4;
+  *(uint*)(mem+sp-spbottom) = argp;
+  sp -= 4;
+  *(uint*)(mem+sp-spbottom) = argc;
+  sp -= 4;
+  *(uint*)(mem+sp-spbottom) = 0xffffffff;   // fake return pc
 
   // Save program name for debugging.
   for(last=s=path; *s; s++)
@@ -92,16 +92,15 @@ exec(char *path, char **argv)
   proc->sz = sz;
   proc->tf->eip = elf.entry;  // main
   proc->tf->esp = sp;
-  switchuvm(proc);
+
+  switchuvm(proc); 
+
   freevm(oldpgdir);
+
   return 0;
 
  bad:
-  if(pgdir)
-    freevm(pgdir);
-  if(ip){
-    iunlockput(ip);
-    end_op();
-  }
+  if(pgdir) freevm(pgdir);
+  iunlockput(ip);
   return -1;
 }
