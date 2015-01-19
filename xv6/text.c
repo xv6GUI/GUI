@@ -158,6 +158,46 @@ kbd_text(char ch, int flag)
 		if(cursor != string_length)
 			cursor++;
 	}
+	else if (flag == KBD_UP)
+	{
+		int i = cursor-1;
+		int len = 16;
+		while(1)
+		{
+			len += text_string_per_width[i];
+			if(len > WindowWidth || text_string[i] == '\0')
+			{
+				cursor = i + 1;
+				break;
+			}
+			else if(text_string[i] == '\n')
+			{
+				cursor = i;
+				break;
+			}
+			i--;
+		}
+		
+	}
+	else if (flag == KBD_DOWN)
+	{
+		int i = cursor+1;
+		int len = 16;
+		while(1)
+		{
+			len += text_string_per_width[i];
+			if(len > WindowWidth || i == string_length || text_string[i] == '\n')
+			{
+				cursor = i;
+				break;
+			}
+			i++;
+		}		
+	}
+	else if(flag == KBD_END)
+	{
+		cursor = string_length;
+	}
 	else if(flag < 0)
 		return;
 	else if((ch >= 0x20 && ch <= 0x7E) || ch == '\n')
