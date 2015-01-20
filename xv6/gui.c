@@ -1,9 +1,11 @@
 #include "types.h"
 #include "BACKGROUND.h"
 #include "FRAME.h"
-#include "icon.h"
 #include "defs.h"
 #include "gui.h"
+#include "win32/icon.h"
+#include "win32/cursor.h"
+#include "win32/cursor_help.h"
 
 static unsigned short SCREEN_COLOR[SCREEN_WIDTH][SCREEN_HEIGHT];
 static unsigned short mouseDeskOri[MOUSE_WIDTH][MOUSE_HEIGHT];
@@ -45,16 +47,34 @@ void cleanMouse(){
 	}
 }
 
-void drawMouse(int posX, int posY){
-        cleanMouse();
+void drawMouse(int posX, int posY){      
 	
 	int i, j;
-	for (i = 0; i < MOUSE_WIDTH; i++){
-		for (j = 0; j < MOUSE_HEIGHT; j++){
-			unsigned int offset = (j + posY) * SCREEN_WIDTH + (i + posX);
+        unsigned short color;
+	unsigned int offset;
+	int alpha;
+
+	cleanMouse();
+
+	if(posX + CURSOR_WIDTH > SCREEN_WIDTH){
+		posX = SCREEN_WIDTH - CURSOR_WIDTH;
+	}
+	else if(posY + CURSOR_HEIGHT > SCREEN_HEIGHT){
+		posY = SCREEN_HEIGHT - CURSOR_HEIGHT;
+	}  
+
+	for (i = 0; i < CURSOR_WIDTH; i++){
+		for (j = 0; j < CURSOR_HEIGHT; j++){
+			alpha = cursor[i][j] / 65536;
+			offset = (j + posY) * SCREEN_WIDTH + (i + posX);
 			mouseDeskOri[i][j] = *(VESA_ADDR + offset);
-			*(VESA_ADDR + offset) = 0xfff;
-		}
+			if(alpha == 0)	continue;
+
+			color = cursor[i][j] % 65536;
+			mouseDeskOri[i][j] = *(VESA_ADDR + offset);
+			*(VESA_ADDR + offset) =  color;
+			
+		} 
 	}
 	mousePosX = posX;
 	mousePosY = posY;

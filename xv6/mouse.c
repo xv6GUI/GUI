@@ -125,7 +125,7 @@ mouse_handler(void)
         history.x_end = mouse_pos.x;
         history.y_end = mouse_pos.y;
         history.btn_left_down = 0;
-	event_click();
+	    event_click();
     }    
 
     if(packet.btn_right)
@@ -139,9 +139,9 @@ mouse_handler(void)
          event_right_btn_up();
     }
     
-#ifdef DEBUG
-    cprintf("mouse pos: %d, %d\n", mouse_pos.x, mouse_pos.y);
-#endif
+//#ifdef DEBUG
+//    cprintf("mouse pos: %d, %d\n", mouse_pos.x, mouse_pos.y);
+//#endif
     //mouse_refresh();
     mouse_pos_final.x = mouse_pos.x;
     mouse_pos_final.y = mouse_pos.y;
@@ -292,38 +292,39 @@ event_click(void)
 {
     uint x = mouse_pos.x;
     uint y = mouse_pos.y;
+    isDragging = 0;
 
 
-    if(x <= ICON_X2 && x >= ICON_X1)
+    if(x <= ICON_X1 + ICON_WIDTH && x >= ICON_X1)
     {
-        if(y >= ICON_Y5 && y <= ICON_Y5 + 100)
+        if(y >= ICON_Y5 && y <= ICON_Y5 + ICON_HEIGHT)
         {
 #ifdef DEBUG
-    		cprintf("ICON 5 clicked.\n");
-#endif 
-        }
-        else if(y >= ICON_Y4 && y <= ICON_Y4 + 100)
-        {
-#ifdef DEBUG
-    		cprintf("ICON 4 clicked.\n");
+            cprintf("ICON 5 clicked.\n");
 #endif
         }
-        else if(y >= ICON_Y3 && y <= ICON_Y3 + 100)
+        else if(y >= ICON_Y4 && y <= ICON_Y4 + ICON_HEIGHT)
         {
 #ifdef DEBUG
-    		cprintf("ICON 3 clicked.\n");
+            cprintf("ICON 4 clicked.\n");
 #endif
         }
-        else if(y >= ICON_Y2 && y <= ICON_Y2 + 100)
+        else if(y >= ICON_Y3 && y <= ICON_Y3 + ICON_HEIGHT)
         {
 #ifdef DEBUG
-    		cprintf("ICON 2 clicked.\n");
+            cprintf("ICON 3 clicked.\n");
 #endif
         }
-        else if(y >= ICON_Y1 && y <= ICON_Y1 + 100)
+        else if(y >= ICON_Y2 && y <= ICON_Y2 + ICON_HEIGHT)
         {
 #ifdef DEBUG
-    		cprintf("ICON 1 clicked.\n");
+            cprintf("ICON 2 clicked.\n");
+#endif
+        }
+        else if(y >= ICON_Y1 && y <= ICON_Y1 + ICON_HEIGHT)
+        {
+#ifdef DEBUG
+            cprintf("ICON 1 clicked.\n");
 #endif
         }
     }
@@ -331,24 +332,28 @@ event_click(void)
 
 void event_left_btn_down(void)
 {
+    if(packet.x_movement!=0 || packet.y_movement != 0){
+    isDragging = 1;
 #ifdef DEBUG
-    cprintf("Left button down.\n");
+        cprintf("Left is dragging.\n");
 #endif
+    }
 }
 
 void event_right_btn_down(void)
 {
+     if(packet.x_movement!=0 || packet.y_movement != 0){
+    isDragging = 1;
 #ifdef DEBUG
-    cprintf("Right button down.\n");
+        cprintf("Right is dragging.\n");
 #endif
+    }
 }
 
 void event_right_btn_up(void)
 {
+    isDragging = 0;
 #ifdef DEBUG
     cprintf("Right button up.\n");
 #endif
 }
-
-
-

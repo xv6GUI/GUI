@@ -24,6 +24,8 @@ struct Mouse{
   uint y_movement;
 };
 
+static uint isDragging;
+
 struct EventState{
   uint btn_left_down;  // if 1 then left button down
   uint btn_right_down; // if 1 then right button down

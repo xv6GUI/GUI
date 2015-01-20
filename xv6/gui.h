@@ -5,9 +5,12 @@
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
 
-//size of mouse
-#define MOUSE_WIDTH 10
-#define MOUSE_HEIGHT 15
+//size of cursor
+#define CURSOR_WIDTH 12
+#define CURSOR_HEIGHT 19
+
+#define CURSORH_WIDTH 18
+#define CURSORH_HEIGHT 24
 
 //size of icon
 #define ICON_WIDTH 60
