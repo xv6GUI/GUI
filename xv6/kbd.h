@@ -3,6 +3,7 @@
 #define KBSTATP         0x64    // kbd controller status port(I)
 #define KBS_DIB         0x01    // kbd data in buffer
 #define KBDATAP         0x60    // kbd data port(I)
+#define KBD_INTR        0x80    // kbd interrupt
 
 #define NO              0
 
