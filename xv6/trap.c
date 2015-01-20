@@ -58,19 +58,17 @@ trap(struct trapframe *tf)
     ideintr();
     lapiceoi();
     break;
-  //kbd trap
   case T_IRQ0 + IRQ_KBD:
     kbdintr();
     lapiceoi();
     break;
-  //mouse trap
+  case T_IRQ0 + IRQ_COM1:
+    uartintr();
+    lapiceoi();
+    break;
   case T_IRQ0 + IRQ_MOUS:
     //mouseintr(ticks);
     mouseintr();
-    lapiceoi();
-    break;
-  case T_IRQ0 + IRQ_COM1:
-    uartintr();
     lapiceoi();
     break;
   case T_IRQ0 + 7:

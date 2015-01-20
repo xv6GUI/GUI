@@ -24,6 +24,16 @@ struct Mouse{
   uint y_movement;
 };
 
+struct EventState{
+  uint btn_left_down;  // if 1 then left button down
+  uint btn_right_down; // if 1 then right button down
+
+  uint x_start;	           // if left button down, then record start
+  uint y_start;
+  uint x_end;              // if left button up, then record end
+  uint y_end;  
+};
+
 struct MousePosition{
   int x;
   int y;
@@ -35,7 +45,12 @@ enum MouseState{
 };
 
 enum MouseState mouse_state;
+
 void mouse_print(struct Mouse* p);
+void event_left_btn_down(void);
+void event_right_btn_down(void);
+void event_right_btn_up(void);
+void event_click(void);
 
 #endif
 

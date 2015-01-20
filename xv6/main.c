@@ -20,11 +20,12 @@ main(void)
   picinit();       // interrupt controller
   ioapicinit();    // another interrupt controller
   consoleinit();   // I/O devices & their interrupts
-  mouseinit();
+  mouseinit();     // PS/2 mouse driver
   uartinit();      // serial port
-  draw_loading();  //GUI
+  initGUI();
   kinit();         // initialize memory allocator
   jkstack();       // call mainc() on a properly-allocated stack 
+  
 }
 
 void

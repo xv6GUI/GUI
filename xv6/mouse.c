@@ -17,15 +17,16 @@
 #include "mouse.h"
 #include "gui.h"
 
-#define DEBUG 0
+//#define DEBUG 0
 
 static struct spinlock mouselock;
 static struct MousePosition mouse_pos;
 static struct MousePosition mouse_pos_final;
 
 static struct Mouse packet;
+static struct EventState history;
 //static uchar data_union[3];
-static uint count;
+static uint count; 
 
 int MOUSE_POSX_MAX;
 int MOUSE_POSY_MAX;
@@ -83,7 +84,7 @@ mouse_refresh(void)
     mouse_pos_final.x = mouse_pos.x;
     mouse_pos_final.y = mouse_pos.y;
 
-    draw_mouse(mouse_pos.x, mouse_pos.y);
+    drawMouse(mouse_pos.x, mouse_pos.y);
 }
 
 
@@ -112,6 +113,32 @@ mouse_handler(void)
     if(mouse_pos.x > MOUSE_POSX_MAX)    mouse_pos.x = MOUSE_POSX_MAX;
     if(mouse_pos.y > MOUSE_POSY_MAX)    mouse_pos.y = MOUSE_POSY_MAX;
 
+    if(packet.btn_left)
+    {
+        history.x_start = mouse_pos.x;
+        history.y_start = mouse_pos.y;
+        history.btn_left_down = 1;
+        event_left_btn_down();
+    }
+    else if(history.btn_left_down)
+    {
+        history.x_end = mouse_pos.x;
+        history.y_end = mouse_pos.y;
+        history.btn_left_down = 0;
+	event_click();
+    }    
+
+    if(packet.btn_right)
+    {
+        event_right_btn_down();
+        history.btn_right_down = 1;
+    }
+    else if( history.btn_right_down)
+    {
+         history.btn_right_down = 0;
+         event_right_btn_up();
+    }
+    
 #ifdef DEBUG
     cprintf("mouse pos: %d, %d\n", mouse_pos.x, mouse_pos.y);
 #endif
@@ -119,7 +146,7 @@ mouse_handler(void)
     mouse_pos_final.x = mouse_pos.x;
     mouse_pos_final.y = mouse_pos.y;
 
-    draw_mouse(mouse_pos.x, mouse_pos.y);
+    drawMouse(mouse_pos.x, mouse_pos.y);
 }
 
 void
@@ -258,6 +285,69 @@ mouse_print(struct Mouse* p)
             p->y_overflow, p->x_overflow, p->y_sign, p->x_sign,
             1, p->btn_mid, p->btn_right, p->btn_left, 
             p->x_movement, p->y_movement);
+}
+
+void
+event_click(void)
+{
+    uint x = mouse_pos.x;
+    uint y = mouse_pos.y;
+
+
+    if(x <= ICON_X2 && x >= ICON_X1)
+    {
+        if(y >= ICON_Y5 && y <= ICON_Y5 + 100)
+        {
+#ifdef DEBUG
+    		cprintf("ICON 5 clicked.\n");
+#endif 
+        }
+        else if(y >= ICON_Y4 && y <= ICON_Y4 + 100)
+        {
+#ifdef DEBUG
+    		cprintf("ICON 4 clicked.\n");
+#endif
+        }
+        else if(y >= ICON_Y3 && y <= ICON_Y3 + 100)
+        {
+#ifdef DEBUG
+    		cprintf("ICON 3 clicked.\n");
+#endif
+        }
+        else if(y >= ICON_Y2 && y <= ICON_Y2 + 100)
+        {
+#ifdef DEBUG
+    		cprintf("ICON 2 clicked.\n");
+#endif
+        }
+        else if(y >= ICON_Y1 && y <= ICON_Y1 + 100)
+        {
+#ifdef DEBUG
+    		cprintf("ICON 1 clicked.\n");
+#endif
+        }
+    }
+}
+
+void event_left_btn_down(void)
+{
+#ifdef DEBUG
+    cprintf("Left button down.\n");
+#endif
+}
+
+void event_right_btn_down(void)
+{
+#ifdef DEBUG
+    cprintf("Right button down.\n");
+#endif
+}
+
+void event_right_btn_up(void)
+{
+#ifdef DEBUG
+    cprintf("Right button up.\n");
+#endif
 }
 
 

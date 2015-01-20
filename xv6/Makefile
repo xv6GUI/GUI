@@ -1,40 +1,33 @@
 OBJS = \
 	bio.o\
 	console.o\
-	draw.o\
 	exec.o\
 	file.o\
-	folder.o\
 	fs.o\
-	game.o\
 	gui.o\
 	ide.o\
 	ioapic.o\
 	kalloc.o\
 	kbd.o\
+        mouse.o\
 	lapic.o\
 	main.o\
-	mouse.o\
 	mp.o\
-	photo.o\
 	picirq.o\
 	pipe.o\
 	proc.o\
-	setting.o\
 	spinlock.o\
 	string.o\
 	swtch.o\
 	syscall.o\
 	sysfile.o\
 	sysproc.o\
-	text.o\
 	timer.o\
 	trapasm.o\
 	trap.o\
 	uart.o\
 	vectors.o\
 	vm.o\
-	window.o\
 
 # Cross-compiling (e.g., on Mac OS X)
 #TOOLPREFIX = i386-jos-elf-
