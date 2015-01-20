@@ -10,8 +10,8 @@
 #define MOUSE_HEIGHT 15
 
 //size of icon
-#define ICON_WIDTH 70
-#define ICON_HEIGHT 70
+#define ICON_WIDTH 60
+#define ICON_HEIGHT 60
 
 
 //position of icon

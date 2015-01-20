@@ -71,12 +71,21 @@ void drawBackground(int id)
 }
 
 void drawIcon(int id, int posX, int posY){
-	int i, j;
+	int i, j， alpha;
+    unsigned short a, b;
+	unsigned int mid; 
+
 	for (i = 0; i < ICON_WIDTH; i++){
 		for (j = 0; j < ICON_HEIGHT; j++){
-                        if(icon[id][i][j] < 100)   continue;
-			SCREEN_COLOR[posX + i][posY + j] = icon[id][i][j];
-		}
+			b = SCREEN_COLOR[posX + i][posY + j];
+			a = icon[id][i][j] % 65536;
+			alpha = (icon[id][i][j] / 65536) / 8;
+			
+			mid = (((((((a << 16) | a) & 0x7e0f81f) - (((b << 16) | b) & 0x7e0f81f)) * alpha) >> 5) + (((b << 16) | b) & 0x7e0f81f)) & 0x7e0f81f;
+			a = (mid & 0xffff0000) >> 16;
+			b = mid & 0xffff;
+			SCREEN_COLOR[posX + i][posY + j] =  a | b;
+		} 
 	}
 }
 
@@ -105,7 +114,7 @@ void initGUI()
 	drawIcon(2, ICON_X1, ICON_Y3);
 	drawIcon(3, ICON_X1, ICON_Y4);
 	drawIcon(4, ICON_X1, ICON_Y5);
-	drawIcon(6, ICON_X2, ICON_Y1);
+	//drawIcon(6, ICON_X2, ICON_Y1);
 	//drawWindow(0, WINDOW_X, WINDOW_Y);
 	renderScreen(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
