@@ -8,7 +8,7 @@
 #include "win32/cursor_help.h"
 
 static unsigned short SCREEN_COLOR[SCREEN_WIDTH][SCREEN_HEIGHT];
-static unsigned short mouseDeskOri[MOUSE_WIDTH][MOUSE_HEIGHT];
+static unsigned short mouseDeskOri[CURSOR_WIDTH][CURSOR_HEIGHT];
 
 static unsigned short *VESA_ADDR = (unsigned short*)0xe0000000;
 static uint mousePosX = SCREEN_WIDTH / 2;
@@ -38,8 +38,8 @@ void drawPoint(unsigned int x, unsigned int y, unsigned short color){
 //event of Mouse
 void cleanMouse(){
        int i, j;
-	for (i = 0; i < MOUSE_WIDTH; i++){
-		for (j = 0; j < MOUSE_HEIGHT; j++){
+	for (i = 0; i < CURSOR_WIDTH; i++){
+		for (j = 0; j < CURSOR_HEIGHT; j++){
 			unsigned int offset = (j + mousePosY) * SCREEN_WIDTH + (i + mousePosX);
 			*(VESA_ADDR + offset) = mouseDeskOri[i][j];
                         
@@ -139,8 +139,8 @@ void initGUI()
 	renderScreen(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
         int i, j;
-	for (i = 0; i < MOUSE_WIDTH; i++){
-		for (j = 0; j < MOUSE_HEIGHT; j++){
+	for (i = 0; i < CURSOR_WIDTH; i++){
+		for (j = 0; j < CURSOR_HEIGHT; j++){
 			uint offset = (j + mousePosY) * SCREEN_WIDTH + (i + mousePosX);
 			mouseDeskOri[i][j] = *(VESA_ADDR + offset);
 		}
