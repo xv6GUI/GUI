@@ -3,6 +3,7 @@
 #include "FRAME.h"
 #include "defs.h"
 #include "gui.h"
+#include "win32/WORD.h"
 #include "win32/icon.h"
 #include "win32/cursor.h"
 #include "win32/cursor_help.h"
@@ -111,6 +112,18 @@ void drawWindow(int id, int posX, int posY){
 	}
 }
 
+int drawWord(int id, int posX, int posY, unsigned short color){
+	id -= 33;
+	int i, j;
+	for (i = 0; i < WORD_HEIGHT; i++){
+		for (j = 0; j < WORD_WIDTH; j++){
+			if (WORD[id][i][j] == 1)
+				SCREEN_COLOR[posX + j][posY + i] = color;
+		}
+	}
+	return WORD_GAP;
+}
+
 //init and redraw
 void renderGUI(int id)
 {
@@ -128,7 +141,12 @@ void initGUI()
 	drawIcon(3, ICON_X1, ICON_Y4);
 	drawIcon(4, ICON_X1, ICON_Y5);
 	//drawIcon(6, ICON_X2, ICON_Y1);
-	//drawWindow(0, WINDOW_X, WINDOW_Y);
+	
+	drawWindow(2, WINDOW_X, WINDOW_Y);
+	drawWord('a', WINDOW_X+25, WINDOW_Y+40, 0);
+	drawWord('b', WINDOW_X+WORD_GAP+25, WINDOW_Y+40, 0);
+	drawWord('A', WINDOW_X+2*WORD_GAP+25, WINDOW_Y+40, 0);
+	drawWord('B', WINDOW_X+3*WORD_GAP+25, WINDOW_Y+40, 0);
 	renderScreen(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
         int i, j;

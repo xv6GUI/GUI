@@ -9,11 +9,12 @@
 #include "gui.h"
 #include "window.h"
 
-#define MAX_LENGTH 2000
-#define LINE_HEIGHT 20
-#define HEIGHT_BEGIN 20
-#define WORD_BEGIN 23
-#define WIDTH_BEGIN 15
+#define MAX_LENGTH 2000		// num of word list
+#define LINE_HEIGHT 25		// height of each line
+#define WIDTH_BEGIN 25		// width between side and line
+#define HEIGHT_BEGIN 40		// height between top and word
+#define LINE 530		// width of line
+#define WORD_HEIGHT 20 		// height of each word
 
 char text[MAX_LENGTH];
 int text_word_width[MAX_LENGTH];
@@ -21,68 +22,48 @@ unsigned int x_start, y_start;
 int cursor;
 int text_length = -1;
 unsigned int cursor_x, cursor_y;
-int flag_out;		// ok, 0; width or height beyond, 1;
+int full;		// ok, 0; width or height beyond, 1;
 
 void
-draw_text_back()
-{
-	int i, j;
-	for(i = 1; i < WindowWidth - 1; i++)
-	{
-		for(j = HEIGHT_BEGIN; j < WindowHeight - HEIGHT_BEGIN; j++)
-		{
-			unsigned short color;
-			if(j % LINE_HEIGHT == 2 * LINE_HEIGHT - WORD_BEGIN)
-				color = 0xD674;
-			else
-				color = 0xF758;
-			draw_point(i + x_start, j + y_start, color);
-		}
-	}
-}
-
-void
-draw_cursor(unsigned int x, unsigned int y)
+drawCursor(unsigned int x, unsigned int y)
 {
 	int i;
-	for(i = y; i < y + 2 * LINE_HEIGHT - WORD_BEGIN - 1; i++)
-		draw_point(x, i, 0);
+	for(i = y; i < y + WORD_HEIGHT; i++)
+		drawPoint(x, i, 0x0000);
 }
 
 void
-draw_text_string()
+drawText()
 {
 	int i, line_len, height_len;
 	i = 0;
 	line_len = x_start + WIDTH_BEGIN;
-	height_len = y_start + WORD_BEGIN;
+	height_len = y_start + HEIGHT_BEGIN;
 	if(cursor == 0)
-		draw_cursor(line_len, height_len);
+		drawCursor(line_len, height_len);
 	while(i < MAX_LENGTH && text[i] != '\0')
 	{
-		if(line_len > WindowWidth || text[i] == '\n')
+		if(line_len > LINE + WIDTH_BEGIN || text[i] == '\n')
 		{
 			height_len += LINE_HEIGHT;
 			line_len = x_start + WIDTH_BEGIN;
 		}
-		text_word_width[i] = draw_character(line_len, height_len, text[i], 0);
+		text_word_width[i] = drawWord(text[i], line_len, height_len, 0x0000);
 		line_len += text_word_width[i];
 		if(i == cursor - 1)
 		{
-			draw_cursor(line_len, height_len);
+			drawCursor(line_len, height_len);
 		}
 		i++;
 	}
-	if(line_len > WindowWidth && height_len > WindowHeight - HEIGHT_BEGIN)
-		flag_out = 1;
-	else if(height_len > WindowHeight - HEIGHT_BEGIN)
-		flag_out = 2;
+	if(height_len > WINDOW_HEIGHT - HEIGHT_BEGIN)
+		full = 1;
 	else
-		flag_out = 0;
+		full = 0;
 }
 
 void 
-init_text(unsigned int x, unsigned int y)
+initText(unsigned int x, unsigned int y)
 {
 	x_start = x;
 	y_start = y;
@@ -93,19 +74,16 @@ init_text(unsigned int x, unsigned int y)
 		text_length = 0;
 		cursor_x = x_start + WIDTH_BEGIN;
 		cursor_y = y_start + WORD_BEGIN;
-		flag_out = 0;
+		full = 0;
 	}
 
-	draw_text_back();
-	draw_text_string();
+	drawText();
 }
 
 void
-add_char(char ch)
+addWord(char ch)
 {
-	if(text_length >= MAX_LENGTH - 1 || flag_out == 1)
-		return;
-	if(flag_out == 2 && ch == '\n')
+	if(text_length >= MAX_LENGTH - 1 || (full == 1 && ch == '\n')
 		return;
 
 	int i;
@@ -119,7 +97,7 @@ add_char(char ch)
 }
 
 void
-delete_char()
+deleteWord()
 {
 	if(cursor == 0)
 		return;
@@ -149,11 +127,11 @@ kbd_text(char ch, int flag)
 	else if (flag == KBD_UP)
 	{
 		int i = cursor - 1;
-		int len = WIDTH_BEGIN;
+		int len = 0;
 		while(1)
 		{
 			len += text_word_width[i];
-			if(len > WindowWidth || text[i] == '\0')
+			if(len > LINE || text[i] == '\0')
 			{
 				cursor = i + 1;
 				break;
@@ -170,11 +148,11 @@ kbd_text(char ch, int flag)
 	else if (flag == KBD_DOWN)
 	{
 		int i = cursor + 1;
-		int len = WIDTH_BEGIN;
+		int len = 0;
 		while(1)
 		{
 			len += text_word_width[i];
-			if(len > WindowWidth || i == text_length || text[i] == '\n')
+			if(len > LINE || i == text_length || text[i] == '\n')
 			{
 				cursor = i;
 				break;
@@ -189,10 +167,9 @@ kbd_text(char ch, int flag)
 	else if(flag < 0)
 		return;
 	else if((ch >= 0x20 && ch <= 0x7E) || ch == '\n')
-		add_char(ch);
+		addWord(ch);
 	else if(ch == '\b')
-		delete_char();
-	draw_text_back();
-	draw_text_string();
-	display_to_screen(x_start, y_start, WindowWidth, WindowHeight);
+		deleteWord();
+	drawText();
+	renderScreen(x_start, y_start, LINE, WindowHeight);
 }
