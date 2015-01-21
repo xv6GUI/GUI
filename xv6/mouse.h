@@ -17,18 +17,18 @@ struct Mouse{
   uint btn_mid;	     // bit 2, if 1 then mid button down
   uint always1 : 1;
   uint x_sign;       // bit 4, if 1 then mouse move toward left 
-  uint y_sign;       // bit 5, if 1 then mouse move toward right
+  uint y_sign;       // bit 5, if 1 then mouse move toward top
   uint x_overflow;   // bit 6, if 1 then x out of range
   uint y_overflow;   // bit 7, if 1 then y out of range
   uint x_movement;
   uint y_movement;
 };
 
-static uint isDragging;
-
 struct EventState{
-  uint btn_left_down;  // if 1 then left button down
-  uint btn_right_down; // if 1 then right button down
+  uint isDragging;
+  uint isClick;
+  uint btn_left_down;  	   // if 1 then left button down
+  uint btn_right_down;     // if 1 then right button down
 
   uint x_start;	           // if left button down, then record start
   uint y_start;
@@ -52,7 +52,7 @@ void mouse_print(struct Mouse* p);
 void event_left_btn_down(void);
 void event_right_btn_down(void);
 void event_right_btn_up(void);
-void event_click(void);
+void event_left_btn_up(void);
 
 #endif
 

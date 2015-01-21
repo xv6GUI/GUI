@@ -2,7 +2,7 @@
 #include "x86.h"
 #include "defs.h"
 #include "kbd.h"
-#include "window.h"
+//#include "window.h"
 #include "gui.h"
 
 static int flag_caps = 0;
@@ -98,7 +98,8 @@ kbdintr(void)
         flag_event = 0;
         break;
     }
-
+	
+    /*
     int cur_icon = WindowLine->next->Cur_icon;
     if(cur_icon == ICON_TEXT)
     {
@@ -106,6 +107,7 @@ kbdintr(void)
     }
     else if(cur_icon == ICON_PHOTO)
       photo(result, flag_event);
+    */
   }
   //release
   else {

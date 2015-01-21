@@ -56,13 +56,6 @@ void drawMouse(int posX, int posY){
 
 	cleanMouse();
 
-	if(posX + CURSOR_WIDTH > SCREEN_WIDTH){
-		posX = SCREEN_WIDTH - CURSOR_WIDTH;
-	}
-	else if(posY + CURSOR_HEIGHT > SCREEN_HEIGHT){
-		posY = SCREEN_HEIGHT - CURSOR_HEIGHT;
-	}  
-
 	for (i = 0; i < CURSOR_WIDTH; i++){
 		for (j = 0; j < CURSOR_HEIGHT; j++){
 			alpha = cursor[i][j] / 65536;
@@ -91,8 +84,8 @@ void drawBackground(int id)
 }
 
 void drawIcon(int id, int posX, int posY){
-	int i, j， alpha;
-    unsigned short a, b;
+	int i, j, alpha;
+    	unsigned short a, b;
 	unsigned int mid; 
 
 	for (i = 0; i < ICON_WIDTH; i++){

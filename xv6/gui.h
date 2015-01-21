@@ -36,4 +36,12 @@
 #define WINDOW_X 100
 #define WINDOW_Y 75
 
+//kbd
+#define KBD_RIGHT -1
+#define KBD_LEFT -2
+#define KBD_UP -3
+#define KBD_DOWN -4
+#define KBD_ESC -5
+#define KBD_END -6
+
 #endif
