@@ -10,6 +10,7 @@
 #include "defs.h"
 #include "gui.h"
 #include "folder.h"
+#include "window.h"
 
 enum FileEvent file;
 struct Node* currentFolder;
@@ -57,6 +58,11 @@ folderinit(uint win_x, uint win_y, struct Node* folder)
 		if(y > fileYMAX)	fileYMAX = y;
 
 		drawFileIcon(child->NodeType, x, y);
+		if(child->NodeType == 0)
+			drawFileString(child->Name, x+5, y, 0);
+		else
+			drawFileString(child->Name, x, y, 0x0);
+		//drawString(child->Name, x-5, y-12, 0x0);
 		fileNum++;
 	}
 
@@ -68,7 +74,7 @@ createFile()
 {
 	struct Node* temp;
 	temp = RequireNode();
-	strcpy(temp->Name,"blank.txt");
+	strcpy(temp->Name,"*txt");
 	temp->NodeType = 1;
 	temp->Parent = currentFolder;
 	temp->Brother = 0;
@@ -82,7 +88,7 @@ createFolder()
 {
 	struct Node* temp;
 	temp = RequireNode();
-	strcpy(temp->Name,"blank");
+	strcpy(temp->Name,"New");
 	temp->NodeType = 0;
 	temp->Parent = currentFolder;
 	temp->Brother = 0;
@@ -148,6 +154,8 @@ folderclick(uint posX, uint posY, struct Node* folder)
 			if(NEW_FOLDER_X1 <= posX && posX <= NEW_FOLDER_X2)	createFolder();
 			else if(NEW_FILE_X1 <= posX && posX <= NEW_FILE_X2) 	createFile();
 			else if(DELETE_X1 <= posX && posX <= DELETE_X2)		deleteFile();
+			else if(COPY_X1 <= posX && posX <= COPY_X2)		copyFile();
+			else if(PASTE_X1 <= posX && posX <= PASTE_X2)		pasteFile();
 			else return;
 			
 			folderinit(folderX, folderY, currentFolder);
@@ -178,6 +186,12 @@ folderclick(uint posX, uint posY, struct Node* folder)
 			y = FILE_DIV_Y1 + row  * FILE_DIV_HEIGHT + folderY - 11;
 			
 			drawChoosedFileIcon(clickFile->NodeType, x, y);
+			if(clickFile->NodeType == 0)
+			{
+				folderinit(folderX, folderY, clickFile);
+				struct Window* temp = getActiveWindow();
+				setWindowNode(temp, clickFile);
+			}
 			renderScreen(x, y, FILE_ICON2_SIZE, FILE_ICON2_SIZE);
 			hasChoosed = 1;
 
@@ -216,13 +230,13 @@ initFileList()
 	struct Node* Snake;
 		
 	Computer = RequireNode();
-	strcpy(Computer->Name,"Computer");
+	strcpy(Computer->Name,"computer");
 	Computer->NodeType = 0;
 	Computer->Parent = 0;
 	Computer->Brother = 0;
 
 	Snake = RequireNode();
-	strcpy(Snake->Name,"Snake.exe");
+	strcpy(Snake->Name,"snake");
 	Snake->NodeType = 4;
 	Snake->Parent = Computer;
 	Snake->Firstchild = 0;
@@ -230,15 +244,15 @@ initFileList()
 	Snake->Brother = 0; 
 
 	Movie = RequireNode();
-	strcpy(Movie->Name,"Movie.flv");
-	Movie->NodeType = 3;
+	strcpy(Movie->Name,"note");
+	Movie->NodeType = 1;
 	Movie->Parent = Computer;
 	Movie->Firstchild = 0;
 	Movie->Lastchild = 0;
 	Movie->Brother = Snake; 
 
 	Dog = RequireNode();
-	strcpy(Dog->Name,"Dog.jpg");
+	strcpy(Dog->Name,"dog");
 	Dog->NodeType = 2;
 	Dog->Parent = Computer;
 	Dog->Firstchild = 0;
@@ -246,7 +260,7 @@ initFileList()
 	Dog->Brother = Movie; 
 
 	Cat = RequireNode();
-	strcpy(Cat->Name,"Cat.png");
+	strcpy(Cat->Name,"cat");
 	Cat->NodeType = 2;
 	Cat->Parent = Computer;
 	Cat->Firstchild = 0;
@@ -254,13 +268,13 @@ initFileList()
 	Cat->Brother = Dog; 
 	
 	Homework = RequireNode();
-	strcpy(Homework->Name,"Homework");
+	strcpy(Homework->Name,"file");
 	Homework->NodeType = 0;
 	Homework->Parent = Computer;
 	Homework->Brother = Cat;
 
 	HW3 = RequireNode();
-	strcpy(HW3->Name,"HW3.txt");
+	strcpy(HW3->Name,"file3");
 	HW3->NodeType = 1;
 	HW3->Parent = Homework;
 	HW3->Firstchild = 0;
@@ -268,7 +282,7 @@ initFileList()
 	HW3->Brother = 0; 
 
 	HW2 = RequireNode();
-	strcpy(HW2->Name,"HW2.txt");
+	strcpy(HW2->Name,"file2");
 	HW2->NodeType = 1;
 	HW2->Parent = Homework;
 	HW2->Firstchild = 0;
@@ -276,7 +290,7 @@ initFileList()
 	HW2->Brother = HW3; 
 
 	HW1 = RequireNode();
-	strcpy(HW1->Name,"HW1.txt");
+	strcpy(HW1->Name,"file1");
 	HW1->NodeType = 1;
 	HW1->Parent = Homework;
 	HW1->Firstchild = 0;

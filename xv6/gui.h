@@ -67,7 +67,7 @@
 //word
 #define WORD_HEIGHT 20
 #define WORD_WIDTH 12
-#define WORD_GAP 12
+#define WORD_GAP 10
 
 //file icon
 #define FILE_ICON_SIZE 48
@@ -77,11 +77,14 @@
 #define CANVAS_HEIGHT 347
 #define CANVAS_WIDTH 570
 
-void drawWindow(int id, int posX, int posY);
-void    redrawScreen();
-int drawWord(int id, int posX, int posY, unsigned short color);
+void	drawWindow(int id, int posX, int posY);
+void	redrawScreen();
+int	drawWord(int id, int posX, int posY, unsigned short color);
+void 	drawString(const char* s, int posX, int posY, unsigned short color);
+int 	drawFileWord(int id, int posX, int posY, unsigned short color);
+void 	drawFileString(const char* s, int posX, int posY, unsigned short color);
 
-void drawFileIcon(int id, int posX, int posY);
-void drawChoosedFileIcon(int id, int posX, int posY);
+void 	drawFileIcon(int id, int posX, int posY);
+void 	drawChoosedFileIcon(int id, int posX, int posY);
 
 #endif

@@ -10,6 +10,7 @@
 #include "win32/file.h"
 #include "win32/cursor.h"
 #include "win32/cursor_help.h"
+#include "win32/font.h"
 
 static unsigned short SCREEN_COLOR[SCREEN_WIDTH][SCREEN_HEIGHT];
 static unsigned short mouseDeskOri[CURSOR_WIDTH][CURSOR_HEIGHT];
@@ -145,11 +146,11 @@ void initGUI()
 {
 	drawBackground(0);
 	drawIcon(0, ICON_X1, ICON_Y1);
-	drawString("computer", 0.5*ICON_X1, ICON_Y1, 0xffff);
+	drawString("computer", 0.7*ICON_X1, ICON_Y1, 0xffff);
 	drawIcon(1, ICON_X1, ICON_Y2);
 	drawString("file", ICON_X1+5, ICON_Y2, 0xffff);
 	drawIcon(2, ICON_X1, ICON_Y3);
-	drawString("text", ICON_X1+5, ICON_Y3, 0xffff);
+	drawString("note", ICON_X1+5, ICON_Y3, 0xffff);
 	drawIcon(3, ICON_X1, ICON_Y4);
 	drawString("paint", ICON_X1, ICON_Y4, 0xffff);
 	drawIcon(4, ICON_X1, ICON_Y5);
@@ -158,7 +159,7 @@ void initGUI()
 	
 	renderScreen(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    int i, j;
+        int i, j;
 	for (i = 0; i < CURSOR_WIDTH; i++){
 		for (j = 0; j < CURSOR_HEIGHT; j++){
 			uint offset = (j + mousePosY) * SCREEN_WIDTH + (i + mousePosX);
@@ -260,10 +261,15 @@ redrawScreen()
 {
 	drawBackground(0);
 	drawIcon(0, ICON_X1, ICON_Y1);
+	drawString("computer", 0.7*ICON_X1, ICON_Y1, 0xffff);
 	drawIcon(1, ICON_X1, ICON_Y2);
+	drawString("file", ICON_X1+5, ICON_Y2, 0xffff);
 	drawIcon(2, ICON_X1, ICON_Y3);
+	drawString("note", ICON_X1+5, ICON_Y3, 0xffff);
 	drawIcon(3, ICON_X1, ICON_Y4);
+	drawString("paint", ICON_X1, ICON_Y4, 0xffff);
 	drawIcon(4, ICON_X1, ICON_Y5);
+	drawString("trash", ICON_X1, ICON_Y5, 0xffff);
 	
 	struct Window* p = getLastWindow();
 	if(p != 0)
@@ -286,3 +292,29 @@ redrawScreen()
 	}
 	drawMouse(mousePosX,mousePosY);
 }
+
+
+int drawFileWord(int id, int posX, int posY, unsigned short color){
+	id -= 33;
+	int i, j;
+	for (i = 0; i < 23; i++){
+		for (j = 0; j < 15; j++){
+			if (font[id][i][j] == 1)
+				SCREEN_COLOR[posX + j][posY + i] = color;
+		}
+	}
+	return 16;
+}
+
+void drawFileString(const char* s, int posX, int posY, unsigned short color){
+	int len = strlen(s);
+	int i, m;
+	int x = posX, y = posY + 48 + 5;
+	for(i = 0; i < len; i++)
+	{
+		m = drawWord(s[i], x, y, color);
+		x += 10;
+	}
+}
+
+

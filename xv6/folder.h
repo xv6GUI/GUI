@@ -17,8 +17,14 @@
 #define DELETE_X1 180
 #define DELETE_X2 250
 
-#define RENAME_X1 255
-#define RENAME_x2 340
+#define RETURN_X1 255
+#define RETURN_x2 340
+
+#define COPY_X1 345
+#define COPY_X2 430
+
+#define PASTE_X1 435
+#define PASTE_X2 515
 
 #define FILE_DIV_X1 50
 #define FILE_DIV_WIDTH 70

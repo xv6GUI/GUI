@@ -27,7 +27,7 @@ static struct MousePosition mouse_pos_final;
 
 static struct Mouse packet;
 static struct EventState history;
-//static uchar data_union[3];
+
 static uint count; 
 static uint currentApp;
 static struct Window* currentWindow;
@@ -153,17 +153,14 @@ mouse_handler(void)
          event_right_btn_up();
     }
     
-    switch(currentApp)
+    if(currentWindow != 0)
     {
-        case 4:   	draw(mouse_pos.x - currentWindow->x, mouse_pos.y - currentWindow->y, currentWindow->x, currentWindow->y, &history);
-			break;
-        default:  	break;
+	if(currentWindow->type == WINDOW_PAINT)
+	{
+	    draw(mouse_pos.x - currentWindow->x, mouse_pos.y - currentWindow->y, currentWindow->x, currentWindow->y, &history);
+	}
     }
 
-#ifdef DEBUG
-    cprintf("mouse pos: %d, %d\n", mouse_pos.x, mouse_pos.y);
-#endif
-    //mouse_refresh();
     mouse_pos_final.x = mouse_pos.x;
     mouse_pos_final.y = mouse_pos.y;
 
@@ -312,64 +309,67 @@ event_left_btn_up(void)
     // 点击桌面图标改变当前的窗口
     if(x <= ICON_X1 + ICON_WIDTH && x >= ICON_X1)
     {
-		openApp(x, y);
+	openApp(x, y);
     }
 
-	if(currentWindow != 0)    
+    if(currentWindow != 0)    
+    {
+	uint win_x = currentWindow->x;
+   	uint win_y = currentWindow->y;
+	
+	if(win_x <= x && x <= win_x + WINDOW_WIDTH && win_y <= y && y <= win_y + WINDOW_HEIGHT)
 	{
-		uint win_x = currentWindow->x;
-	   	uint win_y = currentWindow->y;
 		//关闭当前窗口
 		if(win_x + 550 <= x && x <= win_x + 594 && win_y <= y && y <= win_y + 20)
 		{
-	    	closeWindow();
-	    	redrawScreen();
-	    	currentWindow = WindowLine -> next;
-            currentApp = getAppNum(currentWindow);
-	    	return;
+		    closeWindow();
+		    redrawScreen();
+		    currentWindow = WindowLine -> next;
+		    currentApp = getAppNum(currentWindow);
+	    	    return;
 	 	}
-    	//点击窗口改变当前窗口
-    	struct Window* temp = getWindowByPosition(x, y);
-    	if(temp != 0)
-    	{
-        	setFocus(temp);
+	}
+	else
+	{
+		//点击窗口改变当前窗口
+	    	struct Window* temp = getWindowByPosition(x, y);
+	    	if(temp != 0)
+	    	{
+			setFocus(temp);
 			redrawScreen();
-        	currentWindow = temp;
+			currentWindow = temp;
 			currentApp = getAppNum(temp);
 		}
 	}
+     }
 
     //根据当前窗口而获得当前app
     switch(currentApp)
     {
         case 1: folderclick(x, y, Computer);
-				break;
-		case 2: folderclick(x, y, Homework);
-				break;
-		case 3: break;
-		case 4: break;
-		case 5: break;
+		break;
+	case 2: folderclick(x, y, Homework);
+		break;
+	case 3: break;
+	case 4: break;
+	case 5: break;
     }
 }
 void openAppByWindow(struct Window* cur)
 {
-	int id = cur->type;
+	int type = cur->type;
 	int x = cur->x;
 	int y = cur->y;
-	currentApp = id;
-	if(id != WINDOW_COMPUTER)
-		drawWindow(WINDOW_TRASH, x, y);
-	else	
-	{
-		folderinit(x, y, cur->folder);
-		if(cur->folder == Computer)	currentApp = 1;
-		else 	currentApp = 2;
-	}
+	currentApp = getAppNum(cur);
+	if(type != WINDOW_COMPUTER)
+		drawWindow(cur->type, x, y);
 
-    if(id == WINDOW_TEXT)
+    	if(type == WINDOW_TEXT)
 	  	initText(x, y);
-	else(id == WINDOW_PAINT)
+	else if(type == WINDOW_PAINT)
 		init_draw(x, y);
+	else if(type == WINDOW_COMPUTER)
+		folderinit(x, y, cur->folder);
 }
 
 void openApp(uint x, uint y)
@@ -429,10 +429,7 @@ void event_left_btn_down(void)
     history.isClick = 1;
 
     if(packet.x_movement!=0 || packet.y_movement != 0){
-    history.isDragging = 1;
-#ifdef DEBUG
-        cprintf("Left is dragging.\n");
-#endif
+    	history.isDragging = 1;
     }
 }
 
@@ -440,9 +437,6 @@ void event_right_btn_down(void)
 {
      if(packet.x_movement!=0 || packet.y_movement != 0){
     	history.isDragging = 1;
-#ifdef DEBUG
-        cprintf("Right is dragging.\n");
-#endif
     }
 }
 
@@ -453,6 +447,7 @@ void event_right_btn_up(void)
     cprintf("Right button up.\n");
 #endif
 }
+
 int getAppNum(struct Window* cur)
 {
     if(cur == 0) return 0;

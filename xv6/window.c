@@ -77,6 +77,8 @@ struct Window* addWindow(int icon)
 
 	if(WindowLine->next == 0)
 	{
+		if(nw == 0)	cprintf("nw == 0");
+		cprintf("1.\n");
 		WindowLine->next = nw;
 		nw->next = 0;
 		nw->pre = 0;
@@ -86,6 +88,7 @@ struct Window* addWindow(int icon)
 	}
 	else
 	{
+		cprintf("2.\n");
 		struct Window* ptr = WindowLine->next;
 
 		nw->pre = 0;
