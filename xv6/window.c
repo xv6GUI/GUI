@@ -14,6 +14,7 @@
 static int offsetY = 20;
 static int offsetX = 20;
 static struct Window* active;
+struct Window	window[MAX_WINDOW];           	//模拟的窗口内存块
 
 void initWindow()
 {
@@ -23,7 +24,7 @@ void initWindow()
 	NumOfWindow = 0;
 
 	WindowLine = requireWindow();
-	WindowLine->type = 0;
+	WindowLine->type = -1;
 	
 	WindowLine->folder = 0;
 	WindowLine->next = 0;
@@ -133,12 +134,14 @@ void closeWindow()
 	{
 		releaseWindow(ptr);
 		WindowLine->next = 0;
+		active = 0;
 	}
 	else
 	{
 		releaseWindow(ptr);
 		WindowLine->next = p;
 		p->pre = 0;
+		active = p;
 	}
 }
 
@@ -162,7 +165,7 @@ void setWindowNode(struct Window* w, struct Node* node)
 		w->folder = node;
 }
 
-void settype(struct Window* w, int type)
+void setWindowType(struct Window* w, int type)
 {
 	if (w == 0)
 		return;

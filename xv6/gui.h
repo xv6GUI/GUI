@@ -29,8 +29,8 @@
 
 //kind of WINDOW
 #define WINDOW_COMPUTER 0
-#define WINDOW_PAINT 2
 #define WINDOW_TEXT 1
+#define WINDOW_PAINT 2
 #define WINDOW_TRASH 3
 
 
@@ -78,6 +78,7 @@
 #define CANVAS_WIDTH 570
 
 void drawWindow(int id, int posX, int posY);
+void    redrawScreen();
 int drawWord(int id, int posX, int posY, unsigned short color);
 
 void drawFileIcon(int id, int posX, int posY);

@@ -312,29 +312,91 @@ event_left_btn_up(void)
     // 点击桌面图标改变当前的窗口
     if(x <= ICON_X1 + ICON_WIDTH && x >= ICON_X1)
     {
-        if(y >= ICON_Y5 && y <= ICON_Y5 + ICON_HEIGHT)
-        {
-	    currentApp = 5;
-	    currentWindow = addWindow(WINDOW_TRASH);
-	    x = currentWindow->x;
-	    y = currentWindow->y;
+		openApp(x, y);
+    }
 
-	    drawWindow(WINDOW_TRASH, x, y);
-	    renderScreen(x, y, WINDOW_WIDTH, WINDOW_HEIGHT);	
-        }
-        else if(y >= ICON_Y4 && y <= ICON_Y4 + ICON_HEIGHT)
-        {
-	    currentApp = 4;
-	    currentWindow = addWindow(WINDOW_PAINT);
-	    x = currentWindow->x;
-	    y = currentWindow->y;
+	if(currentWindow != 0)    
+	{
+		uint win_x = currentWindow->x;
+	   	uint win_y = currentWindow->y;
+		//关闭当前窗口
+		if(win_x + 550 <= x && x <= win_x + 594 && win_y <= y && y <= win_y + 20)
+		{
+	    	closeWindow();
+	    	redrawScreen();
+	    	currentWindow = WindowLine -> next;
+            currentApp = getAppNum(currentWindow);
+	    	return;
+	 	}
+    	//点击窗口改变当前窗口
+    	struct Window* temp = getWindowByPosition(x, y);
+    	if(temp != 0)
+    	{
+        	setFocus(temp);
+			redrawScreen();
+        	currentWindow = temp;
+			currentApp = getAppNum(temp);
+		}
+	}
+
+    //根据当前窗口而获得当前app
+    switch(currentApp)
+    {
+        case 1: folderclick(x, y, Computer);
+				break;
+		case 2: folderclick(x, y, Homework);
+				break;
+		case 3: break;
+		case 4: break;
+		case 5: break;
+    }
+}
+void openAppByWindow(struct Window* cur)
+{
+	int id = cur->type;
+	int x = cur->x;
+	int y = cur->y;
+	currentApp = id;
+	if(id != WINDOW_COMPUTER)
+		drawWindow(WINDOW_TRASH, x, y);
+	else	
+	{
+		folderinit(x, y, cur->folder);
+		if(cur->folder == Computer)	currentApp = 1;
+		else 	currentApp = 2;
+	}
+
+    if(id == WINDOW_TEXT)
+	  	initText(x, y);
+	else(id == WINDOW_PAINT)
+		init_draw(x, y);
+}
+
+void openApp(uint x, uint y)
+{
+    if(y >= ICON_Y5 && y <= ICON_Y5 + ICON_HEIGHT)
+    {
+        currentApp = 5;
+        currentWindow = addWindow(WINDOW_TRASH);
+        x = currentWindow->x;
+        y = currentWindow->y;
+
+        drawWindow(WINDOW_TRASH, x, y);
+        renderScreen(x, y, WINDOW_WIDTH, WINDOW_HEIGHT);	
+    }
+    else if(y >= ICON_Y4 && y <= ICON_Y4 + ICON_HEIGHT)
+    {
+        currentApp = 4;
+        currentWindow = addWindow(WINDOW_PAINT);
+        x = currentWindow->x;
+        y = currentWindow->y;
 		
-	    drawWindow(WINDOW_PAINT, x, y);
+        drawWindow(WINDOW_PAINT, x, y);
         init_draw(x, y);
-	    renderScreen(x, y, WINDOW_WIDTH, WINDOW_HEIGHT);	
-        }
-        else if(y >= ICON_Y3 && y <= ICON_Y3 + ICON_HEIGHT)
-        {
+        renderScreen(x, y, WINDOW_WIDTH, WINDOW_HEIGHT);	
+    }
+    else if(y >= ICON_Y3 && y <= ICON_Y3 + ICON_HEIGHT)
+    {
 	    currentApp = 3;
 	    currentWindow = addWindow(WINDOW_TEXT);
 	    x = currentWindow->x;
@@ -343,8 +405,8 @@ event_left_btn_up(void)
 	    drawWindow(WINDOW_TEXT, x, y);
 	    initText(x, y);
 	    renderScreen(x, y, WINDOW_WIDTH, WINDOW_HEIGHT);
-        }
-        else if(y >= ICON_Y2 && y <= ICON_Y2 + ICON_HEIGHT){
+    }
+    else if(y >= ICON_Y2 && y <= ICON_Y2 + ICON_HEIGHT){
 	    currentApp = 2;
 	    currentWindow = addWindow(WINDOW_COMPUTER);
 	    setWindowNode(currentWindow, Homework);
@@ -352,7 +414,7 @@ event_left_btn_up(void)
 	    y = currentWindow->y;
 	    folderinit(x, y, Homework);
   	}
-        else if(y >= ICON_Y1 && y <= ICON_Y1 + ICON_HEIGHT){
+    else if(y >= ICON_Y1 && y <= ICON_Y1 + ICON_HEIGHT){
 	    currentApp = 1;
 	    currentWindow = addWindow(WINDOW_COMPUTER);
 	    setWindowNode(currentWindow, Computer);
@@ -360,28 +422,6 @@ event_left_btn_up(void)
 	    y = currentWindow->y;
 	    folderinit(x, y, Computer);
 	}
-    }
-
-    //点击窗口改变当前窗口
-    struct Window* temp = getWindowByPosition(x, y);
-    if(!temp)
-    {
-        setFocus(temp);
-        currentWindow = temp;
-	currentApp = temp->type;
-    }
-
-    //根据当前窗口而获得当前app
-    switch(currentApp)
-    {
-        case 1: folderclick(x, y, Computer);
-		break;
-	case 2: folderclick(x, y, Homework);
-		break;
-	case 3: break;
-	case 4: break;
-	case 5: break;
-    }
 }
 
 void event_left_btn_down(void)
@@ -412,4 +452,15 @@ void event_right_btn_up(void)
 #ifdef DEBUG
     cprintf("Right button up.\n");
 #endif
+}
+int getAppNum(struct Window* cur)
+{
+    if(cur == 0) return 0;
+
+    if(cur->type != WINDOW_COMPUTER)
+    {
+	return (cur->type)+1;
+    }
+    if(cur -> folder == Computer)   return 1;
+    else   return 2;
 }

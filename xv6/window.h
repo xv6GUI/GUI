@@ -9,7 +9,7 @@
 
 typedef struct Window
 {
-	int type;		   	//-1: null, 1: WINDOW_COMPUTER,2: WINDOW_PAINT ...
+	int type;		   	//-1: null, 0: WINDOW_COMPUTER,1: WINDOW_TEXT ...
 	int x;			
 	int y;		
 
@@ -36,7 +36,6 @@ struct Window*  getActiveWindow();
 struct Window* 	requireWindow();				//申请一块窗口内存空间
 struct Window* 	addWindow(int icon);                              
 
-struct Window	window[MAX_WINDOW];           	//模拟的窗口内存块
 struct Window* 	WindowLine;                   	//窗口队列
 int NumOfWindow;                              	//已申请的窗口数
 

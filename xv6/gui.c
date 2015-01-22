@@ -3,6 +3,8 @@
 #include "FRAME.h"
 #include "defs.h"
 #include "gui.h"
+#include "window.h"
+#include "folder.h"
 #include "win32/word.h"
 #include "win32/icon.h"
 #include "win32/file.h"
@@ -253,3 +255,34 @@ drawChoosedFileIcon(int id, int posX, int posY)
 }
 
 
+void    
+redrawScreen()
+{
+	drawBackground(0);
+	drawIcon(0, ICON_X1, ICON_Y1);
+	drawIcon(1, ICON_X1, ICON_Y2);
+	drawIcon(2, ICON_X1, ICON_Y3);
+	drawIcon(3, ICON_X1, ICON_Y4);
+	drawIcon(4, ICON_X1, ICON_Y5);
+	
+	struct Window* p = getLastWindow();
+	if(p != 0)
+ 	{
+		while(p->pre != 0)
+		{
+			drawWindow(p->type, p->x, p->y);
+			p = p->pre;
+		}
+		openAppByWindow(WindowLine->next);
+	}
+	renderScreen(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	int i, j;
+	for (i = 0; i < CURSOR_WIDTH; i++){
+		for (j = 0; j < CURSOR_HEIGHT; j++){
+			uint offset = (j + mousePosY) * SCREEN_WIDTH + (i + mousePosX);
+			mouseDeskOri[i][j] = *(VESA_ADDR + offset);
+		}
+	}
+	drawMouse(mousePosX,mousePosY);
+}

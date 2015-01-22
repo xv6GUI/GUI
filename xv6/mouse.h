@@ -51,6 +51,7 @@ void event_left_btn_down(void);
 void event_right_btn_down(void);
 void event_right_btn_up(void);
 void event_left_btn_up(void);
+int getAppNum(struct Window* cur);
 
 #endif
 

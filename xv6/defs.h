@@ -7,6 +7,7 @@ struct proc;
 struct spinlock;
 struct stat;
 struct EventState;
+struct Window;
 
 // bio.c
 void            binit(void);
@@ -79,6 +80,8 @@ void            kbdintr(void);
 //mouse.c
 void		mouseinit(void);
 void		mouseintr(void);
+void 		openApp(uint x, uint y);
+void 		openAppByWindow(struct Window* cur);
 
 // lapic.c
 int             cpunum(void);
@@ -160,7 +163,7 @@ void            timerinit(void);
 void            idtinit(void);
 extern uint     ticks;
 void            tvinit(void);
-extern struct spinlock tickslock;
+extern struct 	spinlock tickslock;
 
 // uart.c
 void            uartinit(void);
