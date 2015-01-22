@@ -16,6 +16,7 @@
 #include "spinlock.h"
 #include "mouse.h"
 #include "gui.h"
+#include "folder.h"
 
 //#define DEBUG 0
 
@@ -151,10 +152,9 @@ mouse_handler(void)
     
     switch(currentApp)
     {
-        case 4:   draw(mouse_pos.x - WINDOW_X, mouse_pos.y - WINDOW_Y, WINDOW_X, WINDOW_Y, &history);
-		  //cprintf("draw :%d, %d\n", mouse_pos.x, mouse_pos.y);
-         	  break;
-        default:  break;
+        case 4:   	draw(mouse_pos.x - WINDOW_X, mouse_pos.y - WINDOW_Y, WINDOW_X, WINDOW_Y, &history);
+					break;
+        default:  	break;
     }
 
 #ifdef DEBUG
@@ -315,40 +315,46 @@ event_left_btn_up(void)
     {
         if(y >= ICON_Y5 && y <= ICON_Y5 + ICON_HEIGHT)
         {
-#ifdef DEBUG
-            cprintf("ICON 5 clicked.\n");
-#endif
+			//trash
         }
         else if(y >= ICON_Y4 && y <= ICON_Y4 + ICON_HEIGHT)
         {
-		currentApp = 4;
-		drawWindow(2, WINDOW_X, WINDOW_Y);
-		renderScreen(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);	
-		
+			//paint
+			currentApp = 4;
+			drawWindow(2, WINDOW_X, WINDOW_Y);
+			renderScreen(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);	
         }
         else if(y >= ICON_Y3 && y <= ICON_Y3 + ICON_HEIGHT)
         {
-		currentApp = 3;
-		drawWindow(1, WINDOW_X, WINDOW_Y);
-		// drawWord('a', WINDOW_X+25, WINDOW_Y+40, 0);
-		// drawWord('b', WINDOW_X+WORD_GAP+25, WINDOW_Y+40, 0);
-		// drawWord('A', WINDOW_X+2*WORD_GAP+25, WINDOW_Y+40, 0);
-		// drawWord('B', WINDOW_X+3*WORD_GAP+25, WINDOW_Y+40, 0);
-		initText(WINDOW_X, WINDOW_Y);
-        renderScreen(WINDOW_X, WINDOW_Y, WINDOW_WIDTH, WINDOW_HEIGHT);
+			//text
+			currentApp = 3;
+			drawWindow(1, WINDOW_X, WINDOW_Y);
+			initText(WINDOW_X, WINDOW_Y);
+			renderScreen(WINDOW_X, WINDOW_Y, WINDOW_WIDTH, WINDOW_HEIGHT);
         }
         else if(y >= ICON_Y2 && y <= ICON_Y2 + ICON_HEIGHT)
         {
-#ifdef DEBUG
-            cprintf("ICON 2 clicked.\n");
-#endif
+			//folder
+			currentApp = 2;
+			folderinit(WINDOW_X, WINDOW_Y, Homework);
         }
         else if(y >= ICON_Y1 && y <= ICON_Y1 + ICON_HEIGHT)
         {
-#ifdef DEBUG
-            cprintf("ICON 1 clicked.\n");
-#endif
+			//computer
+			currentApp = 1;
+			folderinit(WINDOW_X, WINDOW_Y, Computer);
         }
+    }
+	
+	switch(currentApp)
+    {
+        case 1: folderclick(x, y, Computer);
+			break;
+		case 2: folderclick(x, y, Homework);
+			break;
+		case 3: break;
+		case 4: break;
+		case 5: break;
     }
 }
 

@@ -5,6 +5,7 @@
 #include "gui.h"
 #include "win32/word.h"
 #include "win32/icon.h"
+#include "win32/file.h"
 #include "win32/cursor.h"
 #include "win32/cursor_help.h"
 
@@ -149,3 +150,91 @@ void initGUI()
 	}
 	drawMouse(mousePosX,mousePosY);
 }
+
+/**************************************************************************
+**  folder相关
+**  author: yangyanzhe
+**  time:   2015.01.21
+***************************************************************************/
+void
+drawFileIcon(int id, int posX, int posY)
+{
+	int i, j, alpha;
+    	unsigned short a, b;
+	uint mid; 
+
+	for (i = 0; i < FILE_ICON_SIZE; i++){
+		for (j = 0; j < FILE_ICON_SIZE; j++){
+			b = SCREEN_COLOR[posX + i][posY + j];
+			
+			switch(id)
+			{
+				case 0: a = file_folder[i][j] % 65536;
+					alpha = (file_folder[i][j] / 65536) / 8;
+					break;
+				case 1: a = file_txt[i][j] % 65536;
+					alpha = (file_txt[i][j] / 65536) / 8;
+					break;
+				case 2: a = file_png[i][j] % 65536;
+					alpha = (file_png[i][j] / 65536) / 8;
+					break;
+				case 3: a = file_video[i][j] % 65536;
+					alpha = (file_video[i][j] / 65536) / 8;
+					break;
+				case 4: a = file_exe[i][j] % 65536;
+					alpha = (file_exe[i][j] / 65536) / 8;
+					break;
+				default: cprintf("unknown file type. \n ");
+					return;
+			}
+	
+			mid = (((((((a << 16) | a) & 0x7e0f81f) - (((b << 16) | b) & 0x7e0f81f)) * alpha) >> 5) + (((b << 16) | b) & 0x7e0f81f)) & 0x7e0f81f;
+			a = (mid & 0xffff0000) >> 16;
+			b = mid & 0xffff;
+			SCREEN_COLOR[posX + i][posY + j] =  a | b;
+		} 
+	}
+}
+
+
+void
+drawChoosedFileIcon(int id, int posX, int posY)
+{
+	int i, j, alpha;
+    	unsigned short a, b;
+	uint mid; 
+
+	for (i = 0; i < FILE_ICON2_SIZE; i++){
+		for (j = 0; j < FILE_ICON2_SIZE; j++){
+			b = SCREEN_COLOR[posX + i][posY + j];
+			
+			switch(id)
+			{
+				case 0: a = file_folder2[i][j] % 65536;
+					alpha = (file_folder2[i][j] / 65536) / 8;
+					break;
+				case 1: a = file_txt2[i][j] % 65536;
+					alpha = (file_txt2[i][j] / 65536) / 8;
+					break;
+				case 2: a = file_png2[i][j] % 65536;
+					alpha = (file_png2[i][j] / 65536) / 8;
+					break;
+				case 3: a = file_video2[i][j] % 65536;
+					alpha = (file_video2[i][j] / 65536) / 8;
+					break;
+				case 4: a = file_exe2[i][j] % 65536;
+					alpha = (file_exe2[i][j] / 65536) / 8;
+					break;
+				default: cprintf("unknown file type. \n ");
+					return;
+			}
+	
+			mid = (((((((a << 16) | a) & 0x7e0f81f) - (((b << 16) | b) & 0x7e0f81f)) * alpha) >> 5) + (((b << 16) | b) & 0x7e0f81f)) & 0x7e0f81f;
+			a = (mid & 0xffff0000) >> 16;
+			b = mid & 0xffff;
+			SCREEN_COLOR[posX + i][posY + j] =  a | b;
+		} 
+	}
+}
+
+

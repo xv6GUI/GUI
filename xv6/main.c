@@ -4,6 +4,8 @@
 #include "mmu.h"
 #include "proc.h"
 #include "x86.h"
+#include "folder.h"
+#include "node.h"
 
 static void bootothers(void);
 static void mpmain(void);
@@ -22,6 +24,10 @@ main(void)
   consoleinit();   // I/O devices & their interrupts
   mouseinit();     // PS/2 mouse driver
   uartinit();      // serial port
+  
+  InitNode();
+  initFileList();	
+  
   initGUI();
   kinit();         // initialize memory allocator
   jkstack();       // call mainc() on a properly-allocated stack 

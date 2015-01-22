@@ -14,6 +14,7 @@ OBJS = \
 	lapic.o\
 	main.o\
 	mp.o\
+	node.o\
 	picirq.o\
 	pipe.o\
 	proc.o\
