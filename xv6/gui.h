@@ -29,13 +29,9 @@
 
 //kind of WINDOW
 #define WINDOW_COMPUTER 0
-#define WINDOW_DOCUMENT 1
+#define WINDOW_TEXT 1
 #define WINDOW_PAINT 2
-#define WINDOW_TEXT 3
-#define WINDOW_TRASH 4
-#define WINDOW_TRASH_FULL 5
-#define WINDOW_VIEWER 6
-
+#define WINDOW_TRASH 3
 
 //size of window
 #define WINDOW_HEIGHT 450
@@ -43,7 +39,7 @@
 
 //position of window
 #define WINDOW_X 100
-#define WINDOW_Y 75
+#define WINDOW_Y 40
 
 //kbd
 #define KBD_RIGHT -1

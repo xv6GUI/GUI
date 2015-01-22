@@ -179,6 +179,9 @@ pde_t*          copyuvm(pde_t*,uint);
 void            switchuvm(struct proc*);
 void            switchkvm();
 
+//window.c
+void			initWindow();
+
 // gui.c
 void            renderScreen(unsigned int, unsigned int, unsigned int, unsigned int);
 void            drawPoint(unsigned int, unsigned int, unsigned short);
