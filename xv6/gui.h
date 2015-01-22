@@ -27,15 +27,6 @@
 #define ICON_Y4 360
 #define ICON_Y5 470
 
-// //kind of icon
-// #define ICON_COMPUTER 0
-// #define ICON_DOCUMENT 1
-// #define ICON_PAINT 2
-// #define ICON_TEXT 3
-// #define ICON_TRASH 4
-// #define ICON_TRASH_FULL 5
-// #define ICON_VIEWER 6
-
 //kind of WINDOW
 #define WINDOW_COMPUTER 0
 #define WINDOW_DOCUMENT 1
@@ -80,11 +71,18 @@
 #define WORD_WIDTH 16
 #define WORD_GAP 12
 
+//file icon
+#define FILE_ICON_SIZE 48
+#define FILE_ICON2_SIZE 71
+
 //size of canvas
 #define CANVAS_HEIGHT 347
 #define CANVAS_WIDTH 570
 
 void drawWindow(int id, int posX, int posY);
 int drawWord(int id, int posX, int posY, unsigned short color);
+
+void drawFileIcon(int id, int posX, int posY);
+void drawChoosedFileIcon(int id, int posX, int posY);
 
 #endif
