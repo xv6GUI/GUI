@@ -27,9 +27,11 @@ void setFocus(struct Window* aim);
 void setWindowNode(struct Window* w, struct Node* node);
 void setWindowType(struct Window* w, int type);   
 
+
 struct Window* 	getLastWindow();				
 struct Window* 	getWindowByPosition(int px, int py);		//点击（px,py)返回窗口
 struct Window* 	getWindowByType(int type);          		//返回第一个窗口类型为type的窗口
+struct Window*  getActiveWindow();
 
 struct Window* 	requireWindow();				//申请一块窗口内存空间
 struct Window* 	addWindow(int icon);                              

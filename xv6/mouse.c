@@ -155,7 +155,7 @@ mouse_handler(void)
     
     switch(currentApp)
     {
-        case 4:   	draw(mouse_pos.x - WINDOW_X, mouse_pos.y - WINDOW_Y, WINDOW_X, WINDOW_Y, &history);
+        case 4:   	draw(mouse_pos.x - currentWindow->x, mouse_pos.y - currentWindow->y, currentWindow->x, currentWindow->y, &history);
 			break;
         default:  	break;
     }
@@ -330,6 +330,7 @@ event_left_btn_up(void)
 	    y = currentWindow->y;
 		
 	    drawWindow(WINDOW_PAINT, x, y);
+        init_draw(x, y);
 	    renderScreen(x, y, WINDOW_WIDTH, WINDOW_HEIGHT);	
         }
         else if(y >= ICON_Y3 && y <= ICON_Y3 + ICON_HEIGHT)

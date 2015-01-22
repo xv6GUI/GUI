@@ -17,6 +17,7 @@ int command = 0;	// paint command
 int line_width = LINE_WIDTH;
 int x_start = 0, y_start = 0, x_end = 0, y_end = 0;
 int window_x, window_y;
+int init_canvas = -1;
 
 struct text_word word[TEXT_LEN];
 int text_id = 0;
@@ -363,6 +364,7 @@ get_command(uint x, uint y)
 		{
 			command = PAINT_RESET;
 			clear_canvas(window_x, window_y);
+			cprintf("window_x=%d, window_y=%d\n", window_x, window_y);
 			text_id = 0;
 			command = PAINT_PEN;
 		}
@@ -484,16 +486,31 @@ draw_big_point(uint x, uint y)
 }
 
 void
-init_draw()
+init_draw(uint x, uint y)
 {
 	int i, j;
-	for(i = 0; i < CANVAS_WIDTH; i++)
+	if(init_canvas == -1)
 	{
-		for(j = 0; j < CANVAS_HEIGHT; j++)
+		for(i = 0; i < CANVAS_WIDTH; i++)
 		{
-			canvas[i][j] = COLOR_WHITE;
+			for(j = 0; j < CANVAS_HEIGHT; j++)
+			{
+				canvas[i][j] = COLOR_WHITE;
+			}
 		}
+		init_canvas++;
 	}
+	else
+	{
+		for(i = 0; i < CANVAS_WIDTH; i++)
+		{
+			for(j = 0; j < CANVAS_HEIGHT; j++)
+			{
+				drawPoint(x+CANVAS_WIDTH_BEGIN+i, y+CANVAS_HEIGHT_BEGIN+j, canvas[i][j]);
+			}
+		}
+		renderScreen(x+CANVAS_WIDTH_BEGIN, y+CANVAS_HEIGHT_BEGIN, CANVAS_WIDTH, CANVAS_HEIGHT);	
+	}	
 }
 
 void

@@ -29,9 +29,11 @@
 
 //kind of WINDOW
 #define WINDOW_COMPUTER 0
-#define WINDOW_TEXT 1
 #define WINDOW_PAINT 2
+#define WINDOW_TEXT 1
 #define WINDOW_TRASH 3
+
+
 
 //size of window
 #define WINDOW_HEIGHT 450
@@ -63,8 +65,8 @@
 #define PAINT_WRITE 5
 
 //word
-#define WORD_HEIGHT 25
-#define WORD_WIDTH 16
+#define WORD_HEIGHT 20
+#define WORD_WIDTH 12
 #define WORD_GAP 12
 
 //file icon

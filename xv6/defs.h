@@ -23,7 +23,7 @@ void            panic(char*) __attribute__((noreturn));
 //draw.c
 void			draw(uint x, uint y, uint win_x, uint win_y, struct EventState*);
 void			draw_scale_word(char, int);
-void			init_draw();
+void			init_draw(uint, uint);
 
 // exec.c
 int             exec(char*, char**);
@@ -36,6 +36,9 @@ void            fileinit(void);
 int             fileread(struct file*, char*, int n);
 int             filestat(struct file*, struct stat*);
 int             filewrite(struct file*, char*, int n);
+
+//folder.h
+void			folderkey(int);
 
 // fs.c
 int             dirlink(struct inode*, char*, uint);
@@ -179,7 +182,7 @@ pde_t*          copyuvm(pde_t*,uint);
 void            switchuvm(struct proc*);
 void            switchkvm();
 
-//window.c
+// window.c
 void			initWindow();
 
 // gui.c

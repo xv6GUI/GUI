@@ -10,9 +10,9 @@
 //#include "window.h"
 
 #define MAX_LENGTH 2000				// num of word list
-#define WINDOW_WIDTH_HEIGHT 30		// height of each WINDOW_WIDTH
+#define WINDOW_WIDTH_HEIGHT 23		// height of each WINDOW_WIDTH
 #define WIDTH_BEGIN 25				// width between side and WINDOW_WIDTH
-#define HEIGHT_BEGIN 40				// height between top and word
+#define HEIGHT_BEGIN 50				// height between top and word
 
 char text[MAX_LENGTH];
 int text_word_width[MAX_LENGTH];
@@ -115,7 +115,20 @@ deleteWord()
 void
 kbdText(char ch, int flag)
 {
-	if(flag == KBD_LEFT)
+	if(flag == KBD_DEL)
+	{
+		//cprintf("flag=%d\n", KBD_DEL);
+		if(cursor < text_length)
+		{
+			int i;
+			for(i = cursor; i < text_length; i++)
+			{
+				text[i] = text[i+1];
+			}
+			text_length--;
+		}
+	}
+	else if(flag == KBD_LEFT)
 	{
 		if(cursor > 0)
 			cursor--;

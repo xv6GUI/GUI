@@ -2,7 +2,7 @@
 #include "x86.h"
 #include "defs.h"
 #include "kbd.h"
-//#include "window.h"
+#include "window.h"
 #include "gui.h"
 
 static int flag_caps = 0;
@@ -115,11 +115,25 @@ kbdintr(void)
         flag_event = 0;
         break;
     }
+    //cprintf("ch=%d\n", ch);
 
-    //cprintf("result=%c, flag_event=%d\n", result, flag_event);
+    struct Window* active = getActiveWindow();
+    switch(active->type)
+    {
+      case WINDOW_TEXT:
+        kbdText(result, flag_event);
+        //cprintf("result=%d, flag_event=%d\n", result, flag_event);
+        break;
+      case WINDOW_PAINT:
+        draw_scale_word(result, flag_event);
+        break;
+      case WINDOW_COMPUTER:
+        folderkey(flag_event);
+        break;
+    }
     //kbdText(result, flag_event);
     //folderKey(flag_event);
-    draw_scale_word(result, flag_event);
+    //draw_scale_word(result, flag_event);
 
     /*
     int cur_icon = WindowLine->next->Cur_icon;

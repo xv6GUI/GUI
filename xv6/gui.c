@@ -121,6 +121,16 @@ int drawWord(int id, int posX, int posY, unsigned short color){
 	return WORD_GAP;
 }
 
+void drawString(const char* s, int posX, int posY, unsigned short color){
+	int len = strlen(s);
+	int i;
+	int x = posX, y = posY + ICON_HEIGHT + 5;
+	for(i = 0; i < len; i++)
+	{
+		x += drawWord(s[i], x, y, color);
+	}
+}
+
 //init and redraw
 void renderGUI(int id)
 {
@@ -133,10 +143,15 @@ void initGUI()
 {
 	drawBackground(0);
 	drawIcon(0, ICON_X1, ICON_Y1);
+	drawString("computer", 0.5*ICON_X1, ICON_Y1, 0xffff);
 	drawIcon(1, ICON_X1, ICON_Y2);
+	drawString("file", ICON_X1+5, ICON_Y2, 0xffff);
 	drawIcon(2, ICON_X1, ICON_Y3);
+	drawString("text", ICON_X1+5, ICON_Y3, 0xffff);
 	drawIcon(3, ICON_X1, ICON_Y4);
+	drawString("paint", ICON_X1, ICON_Y4, 0xffff);
 	drawIcon(4, ICON_X1, ICON_Y5);
+	drawString("trash", ICON_X1, ICON_Y5, 0xffff);
 	//drawIcon(6, ICON_X2, ICON_Y1);
 	
 	renderScreen(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);

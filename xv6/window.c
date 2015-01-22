@@ -13,6 +13,7 @@
 
 static int offsetY = 20;
 static int offsetX = 20;
+static struct Window* active;
 
 void initWindow()
 {
@@ -68,6 +69,7 @@ struct Window* addWindow(int icon)
 	if(!nw)
 	{
 		nw = getWindowByType(icon);
+                active = nw;
 		return nw;
 	}
 	nw->type = icon;
@@ -102,7 +104,7 @@ struct Window* addWindow(int icon)
 			nw->y = WINDOW_Y;
 		}
 	}
-	//active = nw;
+	active = nw;
 	return nw;
 }
 
@@ -174,7 +176,7 @@ void setFocus(struct Window* aim)
 {
 	if(WindowLine->next == aim) 
 		return;
-	//active = aim;
+	active = aim;
 
 	struct Window* ptr = WindowLine->next;
 	struct Window* pre = aim->pre;
@@ -227,4 +229,8 @@ struct Window* getWindowByType(int type)
 	return ptr;
 }
 
+struct Window* getActiveWindow()
+{
+	return active;
+}
 

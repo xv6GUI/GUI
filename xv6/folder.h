@@ -42,6 +42,7 @@ void folderinit(uint win_x, uint win_y, struct Node* folder);
 void folderclick(uint posX, uint posY, struct Node* folder);
 void initFileList();
 void cancelClick();
+void folderkey(int key);
 
 
 
