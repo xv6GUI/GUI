@@ -74,7 +74,7 @@ kbdintr(void)
     }
 
 
-    cprintf("flag_shift=%d, ch=%d\n", flag_shift, ch);
+    //cprintf("flag_shift=%d, ch=%d\n", flag_shift, ch);
     switch (ch) {
       case 1: 
         flag_event = KBD_ESC;
@@ -117,9 +117,9 @@ kbdintr(void)
     }
 
     //cprintf("result=%c, flag_event=%d\n", result, flag_event);
-    kbdText(result, flag_event);
+    //kbdText(result, flag_event);
     //folderKey(flag_event);
-    //draw_scale_word(result, flag_event);
+    draw_scale_word(result, flag_event);
 
     /*
     int cur_icon = WindowLine->next->Cur_icon;
