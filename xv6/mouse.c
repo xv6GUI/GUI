@@ -27,6 +27,8 @@ static struct Mouse packet;
 static struct EventState history;
 //static uchar data_union[3];
 static uint count; 
+static uint currentApp;
+enum MouseState mouse_state;
 
 int MOUSE_POSX_MAX;
 int MOUSE_POSY_MAX;
@@ -95,23 +97,31 @@ mouse_pos_init(void)
     mouse_pos.x = SCREEN_WIDTH / 2;
     mouse_pos.y = SCREEN_HEIGHT / 2;
 
-    MOUSE_POSX_MAX = SCREEN_WIDTH;
-    MOUSE_POSY_MAX = SCREEN_HEIGHT;
+    MOUSE_POSX_MAX = SCREEN_WIDTH - CURSOR_WIDTH;
+    MOUSE_POSY_MAX = SCREEN_HEIGHT - CURSOR_HEIGHT;
 }
 
 void
 mouse_handler(void)
 {
-    int x = packet.x_sign ? (0xffffff00 | (packet.x_movement & 0xff)) : (packet.x_movement & 0xff);
-    int y = packet.y_sign ? (0xffffff00 | (packet.y_movement & 0xff)) : (packet.y_movement & 0xff);
+    int x, y;
+
+    x = packet.x_sign ? (0xffffff00 | (packet.x_movement & 0xff)) : (packet.x_movement & 0xff);
+    y = packet.y_sign ? (0xffffff00 | (packet.y_movement & 0xff)) : (packet.y_movement & 0xff);
+
+    if(x == 127 || x == -127 || y == 127 || y == -127){
+        x = 0;
+        y = 0;
+    }
     
     mouse_pos.x += x;
     mouse_pos.y -= y;
 
-    if(mouse_pos.x < 0)    mouse_pos.x = 0;
-    if(mouse_pos.y < 0)    mouse_pos.y = 0;
-    if(mouse_pos.x > MOUSE_POSX_MAX)    mouse_pos.x = MOUSE_POSX_MAX;
-    if(mouse_pos.y > MOUSE_POSY_MAX)    mouse_pos.y = MOUSE_POSY_MAX;
+    if(mouse_pos.x <= 0)    mouse_pos.x = 0;
+    else if(mouse_pos.x >= MOUSE_POSX_MAX)    mouse_pos.x = MOUSE_POSX_MAX;
+ 
+    if(mouse_pos.y <= 0)    mouse_pos.y = 0;
+    else if(mouse_pos.y >= MOUSE_POSY_MAX)    mouse_pos.y = MOUSE_POSY_MAX;
 
     if(packet.btn_left)
     {
@@ -125,7 +135,7 @@ mouse_handler(void)
         history.x_end = mouse_pos.x;
         history.y_end = mouse_pos.y;
         history.btn_left_down = 0;
-	    event_click();
+	    event_left_btn_up();
     }    
 
     if(packet.btn_right)
@@ -139,9 +149,17 @@ mouse_handler(void)
          event_right_btn_up();
     }
     
-//#ifdef DEBUG
-//    cprintf("mouse pos: %d, %d\n", mouse_pos.x, mouse_pos.y);
-//#endif
+    switch(currentApp)
+    {
+        case 4:   draw(mouse_pos.x - WINDOW_X, mouse_pos.y - WINDOW_Y, WINDOW_X, WINDOW_Y, &history);
+		  //cprintf("draw :%d, %d\n", mouse_pos.x, mouse_pos.y);
+         	  break;
+        default:  break;
+    }
+
+#ifdef DEBUG
+    cprintf("mouse pos: %d, %d\n", mouse_pos.x, mouse_pos.y);
+#endif
     //mouse_refresh();
     mouse_pos_final.x = mouse_pos.x;
     mouse_pos_final.y = mouse_pos.y;
@@ -152,6 +170,7 @@ mouse_handler(void)
 void
 mouseinit(void)
 {
+    mouse_pos_init();
     uchar statustemp;
 
     mouse_wait(1);
@@ -188,9 +207,10 @@ mouseinit(void)
 #endif
     picenable(IRQ_MOUS);
     ioapicenable(IRQ_MOUS, 0);
-    mouse_pos_init();
+
     mouse_handler();		// 设置鼠标句柄
     mouse_state = ACTIVE;
+    currentApp = 0;
 }
 
 void
@@ -233,14 +253,10 @@ mouseintr(void)
                     break;
                  }
                  
-        case 2:  //data_union[1] = data;    
-                 packet.x_movement = data;
+        case 2:  packet.x_movement = data;
                  break;
-        case 3:  //data_union[2] = data;  
-                 packet.y_movement = data;  
+        case 3:  packet.y_movement = data;  
                  count = 0;
-                 //packet = (struct Mouse*)data_union;
-                 
 #ifdef DEBUG
                  mouse_print(&packet);
 #endif
@@ -288,12 +304,12 @@ mouse_print(struct Mouse* p)
 }
 
 void
-event_click(void)
+event_left_btn_up(void)
 {
     uint x = mouse_pos.x;
     uint y = mouse_pos.y;
-    isDragging = 0;
-
+    history.isDragging = 0;
+    history.isClick = 0;
 
     if(x <= ICON_X1 + ICON_WIDTH && x >= ICON_X1)
     {
@@ -305,15 +321,21 @@ event_click(void)
         }
         else if(y >= ICON_Y4 && y <= ICON_Y4 + ICON_HEIGHT)
         {
-#ifdef DEBUG
-            cprintf("ICON 4 clicked.\n");
-#endif
+		currentApp = 4;
+		drawWindow(2, WINDOW_X, WINDOW_Y);
+		renderScreen(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);	
+		
         }
         else if(y >= ICON_Y3 && y <= ICON_Y3 + ICON_HEIGHT)
         {
-#ifdef DEBUG
-            cprintf("ICON 3 clicked.\n");
-#endif
+		currentApp = 3;
+		drawWindow(1, WINDOW_X, WINDOW_Y);
+		// drawWord('a', WINDOW_X+25, WINDOW_Y+40, 0);
+		// drawWord('b', WINDOW_X+WORD_GAP+25, WINDOW_Y+40, 0);
+		// drawWord('A', WINDOW_X+2*WORD_GAP+25, WINDOW_Y+40, 0);
+		// drawWord('B', WINDOW_X+3*WORD_GAP+25, WINDOW_Y+40, 0);
+		initText(WINDOW_X, WINDOW_Y);
+        renderScreen(WINDOW_X, WINDOW_Y, WINDOW_WIDTH, WINDOW_HEIGHT);
         }
         else if(y >= ICON_Y2 && y <= ICON_Y2 + ICON_HEIGHT)
         {
@@ -332,8 +354,10 @@ event_click(void)
 
 void event_left_btn_down(void)
 {
+    history.isClick = 1;
+
     if(packet.x_movement!=0 || packet.y_movement != 0){
-    isDragging = 1;
+    history.isDragging = 1;
 #ifdef DEBUG
         cprintf("Left is dragging.\n");
 #endif
@@ -343,7 +367,7 @@ void event_left_btn_down(void)
 void event_right_btn_down(void)
 {
      if(packet.x_movement!=0 || packet.y_movement != 0){
-    isDragging = 1;
+    	history.isDragging = 1;
 #ifdef DEBUG
         cprintf("Right is dragging.\n");
 #endif
@@ -352,7 +376,7 @@ void event_right_btn_down(void)
 
 void event_right_btn_up(void)
 {
-    isDragging = 0;
+    history.isDragging = 0;
 #ifdef DEBUG
     cprintf("Right button up.\n");
 #endif

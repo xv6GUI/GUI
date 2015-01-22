@@ -1,6 +1,7 @@
 OBJS = \
 	bio.o\
 	console.o\
+	draw.o\
 	exec.o\
 	file.o\
 	fs.o\
@@ -9,7 +10,7 @@ OBJS = \
 	ioapic.o\
 	kalloc.o\
 	kbd.o\
-        mouse.o\
+    mouse.o\
 	lapic.o\
 	main.o\
 	mp.o\
@@ -22,6 +23,7 @@ OBJS = \
 	syscall.o\
 	sysfile.o\
 	sysproc.o\
+	text.o\
 	timer.o\
 	trapasm.o\
 	trap.o\

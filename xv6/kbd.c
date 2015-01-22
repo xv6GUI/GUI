@@ -2,7 +2,7 @@
 #include "x86.h"
 #include "defs.h"
 #include "kbd.h"
-#include "window.h"
+//#include "window.h"
 #include "gui.h"
 
 static int flag_caps = 0;
@@ -73,11 +73,17 @@ kbdintr(void)
       }
     }
 
-    //cprintf("ch: %d\n", ch);
 
+    cprintf("ch=%d", ch);
     switch (ch) {
       case 1: 
         flag_event = KBD_ESC;
+        break;
+      case 12:
+        flag_event = KBD_DEC;
+        break;
+      case 13:
+        flag_event = KBD_INC;
         break;
       case 75:
         flag_event = KBD_LEFT;
@@ -99,6 +105,11 @@ kbdintr(void)
         break;
     }
 
+    //cprintf("result=%c, flag_event=%d\n", result, flag_event);
+    //kbdText(result, flag_event);
+    draw_set_scale(flag_event);
+
+    /*
     int cur_icon = WindowLine->next->Cur_icon;
     if(cur_icon == ICON_TEXT)
     {
@@ -106,6 +117,7 @@ kbdintr(void)
     }
     else if(cur_icon == ICON_PHOTO)
       photo(result, flag_event);
+    */
   }
   //release
   else {

@@ -6,6 +6,7 @@ struct pipe;
 struct proc;
 struct spinlock;
 struct stat;
+struct EventState;
 
 // bio.c
 void            binit(void);
@@ -18,6 +19,10 @@ void            consoleinit(void);
 void            cprintf(char*, ...);
 void            consoleintr(int(*)(void));
 void            panic(char*) __attribute__((noreturn));
+
+//draw.c
+void			draw(uint x, uint y, uint win_x, uint win_y, struct EventState*);
+void			draw_set_scale(int);
 
 // exec.c
 int             exec(char*, char**);
@@ -65,7 +70,7 @@ void            kfree(char*);
 void            kinit();
 
 // kbd.c
-void            kbdintr(void);
+void            kbdintr(void);	
 
 //mouse.c
 void		mouseinit(void);
@@ -140,6 +145,10 @@ int             fetchint(struct proc*, uint, int*);
 int             fetchstr(struct proc*, uint, char**);
 void            syscall(void);
 
+// text.c
+void			kbdText(char, int);
+void			initText(uint, uint);
+
 // timer.c
 void            timerinit(void);
 
@@ -176,8 +185,8 @@ void            cleanMouse();
 void            drawMouse(int, int);
 void            drawBackground(int);
 void            renderGUI(int);
-void		drawIcon(int, int, int);
-void 		drawWindow(int id, int posX, int posY);
+void			drawIcon(int, int, int);
+void 			drawWindow(int id, int posX, int posY);
 void            initGUI();
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))

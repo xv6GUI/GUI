@@ -3,12 +3,13 @@
 #include "FRAME.h"
 #include "defs.h"
 #include "gui.h"
+#include "win32/word.h"
 #include "win32/icon.h"
 #include "win32/cursor.h"
 #include "win32/cursor_help.h"
 
 static unsigned short SCREEN_COLOR[SCREEN_WIDTH][SCREEN_HEIGHT];
-static unsigned short mouseDeskOri[MOUSE_WIDTH][MOUSE_HEIGHT];
+static unsigned short mouseDeskOri[CURSOR_WIDTH][CURSOR_HEIGHT];
 
 static unsigned short *VESA_ADDR = (unsigned short*)0xe0000000;
 static uint mousePosX = SCREEN_WIDTH / 2;
@@ -27,19 +28,15 @@ void renderScreen(unsigned int x, unsigned int y, unsigned int width, unsigned i
 }
 
 void drawPoint(unsigned int x, unsigned int y, unsigned short color){
-	if (
-		(x >= SCREEN_WIDTH) || 
-		(y >= SCREEN_HEIGHT)
-		)
-		return;
+	if ( (x >= SCREEN_WIDTH) || (y >= SCREEN_HEIGHT))    return;
 	SCREEN_COLOR[x][y] = color;
 }
 
 //event of Mouse
 void cleanMouse(){
        int i, j;
-	for (i = 0; i < MOUSE_WIDTH; i++){
-		for (j = 0; j < MOUSE_HEIGHT; j++){
+	for (i = 0; i < CURSOR_WIDTH; i++){
+		for (j = 0; j < CURSOR_HEIGHT; j++){
 			unsigned int offset = (j + mousePosY) * SCREEN_WIDTH + (i + mousePosX);
 			*(VESA_ADDR + offset) = mouseDeskOri[i][j];
                         
@@ -55,13 +52,6 @@ void drawMouse(int posX, int posY){
 	int alpha;
 
 	cleanMouse();
-
-	if(posX + CURSOR_WIDTH > SCREEN_WIDTH){
-		posX = SCREEN_WIDTH - CURSOR_WIDTH;
-	}
-	else if(posY + CURSOR_HEIGHT > SCREEN_HEIGHT){
-		posY = SCREEN_HEIGHT - CURSOR_HEIGHT;
-	}  
 
 	for (i = 0; i < CURSOR_WIDTH; i++){
 		for (j = 0; j < CURSOR_HEIGHT; j++){
@@ -91,7 +81,7 @@ void drawBackground(int id)
 }
 
 void drawIcon(int id, int posX, int posY){
-	int i, j， alpha;
+	int i, j, alpha;
     unsigned short a, b;
 	unsigned int mid; 
 
@@ -118,6 +108,18 @@ void drawWindow(int id, int posX, int posY){
 	}
 }
 
+int drawWord(int id, int posX, int posY, unsigned short color){
+	id -= 33;
+	int i, j;
+	for (i = 0; i < WORD_HEIGHT; i++){
+		for (j = 0; j < WORD_WIDTH; j++){
+			if (WORD[id][i][j] == 1)
+				SCREEN_COLOR[posX + j][posY + i] = color;
+		}
+	}
+	return WORD_GAP;
+}
+
 //init and redraw
 void renderGUI(int id)
 {
@@ -135,12 +137,12 @@ void initGUI()
 	drawIcon(3, ICON_X1, ICON_Y4);
 	drawIcon(4, ICON_X1, ICON_Y5);
 	//drawIcon(6, ICON_X2, ICON_Y1);
-	//drawWindow(0, WINDOW_X, WINDOW_Y);
+	
 	renderScreen(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-        int i, j;
-	for (i = 0; i < MOUSE_WIDTH; i++){
-		for (j = 0; j < MOUSE_HEIGHT; j++){
+    int i, j;
+	for (i = 0; i < CURSOR_WIDTH; i++){
+		for (j = 0; j < CURSOR_HEIGHT; j++){
 			uint offset = (j + mousePosY) * SCREEN_WIDTH + (i + mousePosX);
 			mouseDeskOri[i][j] = *(VESA_ADDR + offset);
 		}
