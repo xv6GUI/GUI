@@ -1,3 +1,6 @@
+static unsigned int WORD_HEIGHT = 25;
+static unsigned int WORD_WIDTH = 16;
+static unsigned int WORD_GAP = 12;
 unsigned short WORD[][25][16] = {
 	{
 		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},

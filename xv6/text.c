@@ -9,21 +9,38 @@
 #include "gui.h"
 //#include "window.h"
 
+<<<<<<< HEAD
 #define MAX_LENGTH 2000				// num of word list
 #define WINDOW_WIDTH_HEIGHT 30		// height of each WINDOW_WIDTH
 #define WIDTH_BEGIN 25				// width between side and WINDOW_WIDTH
 #define HEIGHT_BEGIN 40				// height between top and word
+=======
+#define MAX_LENGTH 2000		// num of word list
+#define LINE_HEIGHT 25		// height of each line
+#define WIDTH_BEGIN 25		// width between side and line
+#define HEIGHT_BEGIN 40		// height between top and word
+#define LINE 530		// width of line
+#define WORD_HEIGHT 20 		// height of each word
+>>>>>>> origin/master
 
 char text[MAX_LENGTH];
 int text_word_width[MAX_LENGTH];
 uint x_start, y_start;
 int cursor;
 int text_length = -1;
+<<<<<<< HEAD
 uint cursor_x, cursor_y;
 int full;		// ok, 0; width or height beyond, 1;
 
 void
 drawCursor(uint x, uint y)
+=======
+unsigned int cursor_x, cursor_y;
+int full;		// ok, 0; width or height beyond, 1;
+
+void
+drawCursor(unsigned int x, unsigned int y)
+>>>>>>> origin/master
 {
 	int i;
 	for(i = y; i < y + WORD_HEIGHT; i++)
@@ -41,16 +58,25 @@ drawText()
 		drawCursor(line_len, height_len);
 	while(i < MAX_LENGTH && text[i] != '\0')
 	{
+<<<<<<< HEAD
 		if(line_len > WINDOW_WIDTH + 2*WIDTH_BEGIN || text[i] == '\n')
+=======
+		if(line_len > LINE + WIDTH_BEGIN || text[i] == '\n')
+>>>>>>> origin/master
 		{
 			height_len += WINDOW_WIDTH_HEIGHT;
 			line_len = x_start + WIDTH_BEGIN;
 		}
+<<<<<<< HEAD
 		if(text[i] != '\n')
 		{
 			text_word_width[i] = drawWord(text[i], line_len, height_len, 0x0000);
 			line_len += text_word_width[i];
 		}
+=======
+		text_word_width[i] = drawWord(text[i], line_len, height_len, 0x0000);
+		line_len += text_word_width[i];
+>>>>>>> origin/master
 		if(i == cursor - 1)
 		{
 			drawCursor(line_len, height_len);
@@ -64,7 +90,11 @@ drawText()
 }
 
 void 
+<<<<<<< HEAD
 initText(uint x, uint y)
+=======
+initText(unsigned int x, unsigned int y)
+>>>>>>> origin/master
 {
 	x_start = x;
 	y_start = y;
@@ -74,7 +104,11 @@ initText(uint x, uint y)
 		cursor = 0;
 		text_length = 0;
 		cursor_x = x_start + WIDTH_BEGIN;
+<<<<<<< HEAD
 		cursor_y = y_start + HEIGHT_BEGIN;
+=======
+		cursor_y = y_start + WORD_BEGIN;
+>>>>>>> origin/master
 		full = 0;
 	}
 
@@ -84,7 +118,11 @@ initText(uint x, uint y)
 void
 addWord(char ch)
 {
+<<<<<<< HEAD
 	if(text_length >= MAX_LENGTH - 1 || (full == 1 && ch == '\n'))
+=======
+	if(text_length >= MAX_LENGTH - 1 || (full == 1 && ch == '\n')
+>>>>>>> origin/master
 		return;
 
 	int i;
@@ -128,11 +166,19 @@ kbdText(char ch, int flag)
 	else if (flag == KBD_UP)
 	{
 		int i = cursor - 1;
+<<<<<<< HEAD
 		int len = 2*  WIDTH_BEGIN;
 		while(1)
 		{
 			len += text_word_width[i];
 			if(len > WINDOW_WIDTH || text[i] == '\0')
+=======
+		int len = 0;
+		while(1)
+		{
+			len += text_word_width[i];
+			if(len > LINE || text[i] == '\0')
+>>>>>>> origin/master
 			{
 				cursor = i + 1;
 				break;
@@ -148,11 +194,19 @@ kbdText(char ch, int flag)
 	else if (flag == KBD_DOWN)
 	{
 		int i = cursor + 1;
+<<<<<<< HEAD
 		int len = 2 * WIDTH_BEGIN;
 		while(1)
 		{
 			len += text_word_width[i];
 			if(len > WINDOW_WIDTH || i == text_length || text[i] == '\n')
+=======
+		int len = 0;
+		while(1)
+		{
+			len += text_word_width[i];
+			if(len > LINE || i == text_length || text[i] == '\n')
+>>>>>>> origin/master
 			{
 				cursor = i;
 				break;
@@ -170,7 +224,12 @@ kbdText(char ch, int flag)
 		addWord(ch);
 	else if(ch == '\b')
 		deleteWord();
+<<<<<<< HEAD
 	drawWindow(1, x_start, y_start);
 	drawText();
 	renderScreen(x_start, y_start, WINDOW_WIDTH, WINDOW_HEIGHT);
+=======
+	drawText();
+	renderScreen(x_start, y_start, LINE, WindowHeight);
+>>>>>>> origin/master
 }

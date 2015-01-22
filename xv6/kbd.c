@@ -104,11 +104,15 @@ kbdintr(void)
         flag_event = 0;
         break;
     }
+<<<<<<< HEAD
 
     //cprintf("result=%c, flag_event=%d\n", result, flag_event);
     //kbdText(result, flag_event);
     draw_set_scale(flag_event);
 
+=======
+	
+>>>>>>> origin/master
     /*
     int cur_icon = WindowLine->next->Cur_icon;
     if(cur_icon == ICON_TEXT)

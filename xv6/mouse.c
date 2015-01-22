@@ -149,6 +149,7 @@ mouse_handler(void)
          event_right_btn_up();
     }
     
+<<<<<<< HEAD
     switch(currentApp)
     {
         case 4:   draw(mouse_pos.x - WINDOW_X, mouse_pos.y - WINDOW_Y, WINDOW_X, WINDOW_Y, &history);
@@ -156,6 +157,8 @@ mouse_handler(void)
          	  break;
         default:  break;
     }
+=======
+>>>>>>> origin/master
 
 #ifdef DEBUG
     cprintf("mouse pos: %d, %d\n", mouse_pos.x, mouse_pos.y);

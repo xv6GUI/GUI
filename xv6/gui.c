@@ -3,7 +3,11 @@
 #include "FRAME.h"
 #include "defs.h"
 #include "gui.h"
+<<<<<<< HEAD
 #include "win32/word.h"
+=======
+#include "win32/WORD.h"
+>>>>>>> origin/master
 #include "win32/icon.h"
 #include "win32/cursor.h"
 #include "win32/cursor_help.h"
@@ -82,7 +86,11 @@ void drawBackground(int id)
 
 void drawIcon(int id, int posX, int posY){
 	int i, j, alpha;
+<<<<<<< HEAD
     unsigned short a, b;
+=======
+    	unsigned short a, b;
+>>>>>>> origin/master
 	unsigned int mid; 
 
 	for (i = 0; i < ICON_WIDTH; i++){
@@ -138,9 +146,20 @@ void initGUI()
 	drawIcon(4, ICON_X1, ICON_Y5);
 	//drawIcon(6, ICON_X2, ICON_Y1);
 	
+<<<<<<< HEAD
 	renderScreen(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
     int i, j;
+=======
+	drawWindow(2, WINDOW_X, WINDOW_Y);
+	drawWord('a', WINDOW_X+25, WINDOW_Y+40, 0);
+	drawWord('b', WINDOW_X+WORD_GAP+25, WINDOW_Y+40, 0);
+	drawWord('A', WINDOW_X+2*WORD_GAP+25, WINDOW_Y+40, 0);
+	drawWord('B', WINDOW_X+3*WORD_GAP+25, WINDOW_Y+40, 0);
+	renderScreen(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+        int i, j;
+>>>>>>> origin/master
 	for (i = 0; i < CURSOR_WIDTH; i++){
 		for (j = 0; j < CURSOR_HEIGHT; j++){
 			uint offset = (j + mousePosY) * SCREEN_WIDTH + (i + mousePosX);
