@@ -74,16 +74,10 @@ kbdintr(void)
     }
 
 
-    cprintf("ch=%d", ch);
+    cprintf("flag_shift=%d, ch=%d\n", flag_shift, ch);
     switch (ch) {
       case 1: 
         flag_event = KBD_ESC;
-        break;
-      case 12:
-        flag_event = KBD_DEC;
-        break;
-      case 13:
-        flag_event = KBD_INC;
         break;
       case 75:
         flag_event = KBD_LEFT;
@@ -100,14 +94,32 @@ kbdintr(void)
       case 79:
         flag_event = KBD_END;
         break;
+      case 73:
+        flag_event = KBD_INC;
+        break;
+      case 81:
+        flag_event = KBD_DEC;
+        break;
+      case 83:
+        flag_event = KBD_DEL;
+        break;
+      case 46:
+        if(flag_shift == CTL)
+          flag_event = KBD_COPY;
+        break;
+      case 47:
+         if(flag_shift == CTL)
+          flag_event = KBD_PASTE;
+        break;
       default:
         flag_event = 0;
         break;
     }
 
     //cprintf("result=%c, flag_event=%d\n", result, flag_event);
-    //kbdText(result, flag_event);
-    draw_set_scale(flag_event);
+    kbdText(result, flag_event);
+    //folderKey(flag_event);
+    //draw_scale_word(result, flag_event);
 
     /*
     int cur_icon = WindowLine->next->Cur_icon;

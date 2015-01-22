@@ -63,6 +63,9 @@
 #define KBD_END -6
 #define KBD_INC -7
 #define KBD_DEC -8
+#define KBD_DEL -9
+#define KBD_COPY -10
+#define KBD_PASTE -11
 
 //paint command
 #define PAINT_PEN 0

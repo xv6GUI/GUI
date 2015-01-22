@@ -22,7 +22,7 @@ void            panic(char*) __attribute__((noreturn));
 
 //draw.c
 void			draw(uint x, uint y, uint win_x, uint win_y, struct EventState*);
-void			draw_set_scale(int);
+void			draw_scale_word(char, int);
 
 // exec.c
 int             exec(char*, char**);

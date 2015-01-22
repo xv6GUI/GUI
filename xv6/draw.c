@@ -72,6 +72,8 @@ unsigned short *ADDR = (unsigned short*)0xe0000000;
 static int command = 0;	// paint command
 int line_width = LINE_WIDTH;
 int x_start = 0, y_start = 0, x_end = 0, y_end = 0;
+int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
+int window_x, window_y;
 
 int circle[6][6] = {
 	{0, 0, 1, 1, 0, 0},
@@ -206,7 +208,7 @@ set_brush_color(uint x, uint y)
 }
 
 void
-get_command(uint x, uint y, uint win_x, uint win_y)
+get_command(uint x, uint y)
 {
 	if(x > 15 && x < 320 && y > 40 && y < 84)
 	{
@@ -220,11 +222,14 @@ get_command(uint x, uint y, uint win_x, uint win_y)
 			x_start = y_start = x_end = y_end = 0;
 		}
 		else if(x > 200 && x < 250)
+		{
 			command = PAINT_TEXT;
+			x_start = y_start = x_end = y_end = 0;
+		}
 		else if(x > 260 && x < 320)
 		{
 			command = PAINT_RESET;
-			clear_canvas(win_x, win_y);
+			clear_canvas(window_x, window_y);
 			command = PAINT_PEN;
 		}
 		//cprintf("command = %d\n", command);
@@ -232,7 +237,7 @@ get_command(uint x, uint y, uint win_x, uint win_y)
 }
 
 void
-draw_set_scale(int flag)
+draw_scale_word(char ch, int flag)
 {
 	if(flag == KBD_INC)
 	{
@@ -242,15 +247,22 @@ draw_set_scale(int flag)
 	{
 		line_width = line_width - 2 < LINE_WIDTH ? LINE_WIDTH : (line_width - 2);	
 	}
+	else
+	{
+		if(command == PAINT_TEXT)
+		{
+			//draw_text(ch);
+		}
+	}
 	//cprintf("line_width=%d\n", line_width);
 }
 
 void
-draw_big_point(uint x, uint y, uint win_x, uint win_y)
+draw_big_point(uint x, uint y)
 {
 	int i, j;
-	int draw_x = win_x + x;
-	int draw_y = win_y + y;
+	int draw_x = window_x + x;
+	int draw_y = window_y + y;
 	int add_width = line_width - LINE_WIDTH;
 	x = x - CANVAS_WIDTH_BEGIN;
 	y = y - CANVAS_HEIGHT_BEGIN;
@@ -348,6 +360,8 @@ min(int a, int b)
 void
 draw(uint x, uint y, uint win_x, uint win_y, struct EventState* mouse)
 {
+	window_x = win_x;
+	window_y = win_y;
 	if(is_in(x, y))
 	{
 		if(!is_canvas(x, y))
@@ -355,7 +369,7 @@ draw(uint x, uint y, uint win_x, uint win_y, struct EventState* mouse)
 			if(mouse->isClick)
 			{
 				//cprintf("x=%d,y=%d\n", x, y);
-				get_command(x, y, win_x, win_y);
+				get_command(x, y);
 				set_brush_color(x, y);
 			}			
 		}
@@ -368,7 +382,7 @@ draw(uint x, uint y, uint win_x, uint win_y, struct EventState* mouse)
 					current_color = COLOR_BLACK;
 				if(mouse->isClick || mouse->isDragging)
 				{
-					draw_big_point(x, y, win_x, win_y);
+					draw_big_point(x, y);
 				}
 			}
 			else if(command == PAINT_ERASER)
@@ -376,7 +390,7 @@ draw(uint x, uint y, uint win_x, uint win_y, struct EventState* mouse)
 				current_color = COLOR_WHITE;
 				if(mouse->isClick || mouse->isDragging)
 				{
-					draw_big_point(x, y, win_x, win_y);
+					draw_big_point(x, y);
 				}
 			}
 			else if(command == PAINT_RECT)
@@ -397,20 +411,19 @@ draw(uint x, uint y, uint win_x, uint win_y, struct EventState* mouse)
 					int i;
 					for(i = min(x_start, x_end); i <= max(x_start, x_end); i++)
 					{
-						draw_big_point(i-win_x, y_start-win_y, win_x, win_y);
-						draw_big_point(i-win_x, y_end-win_y, win_x, win_y);
+						draw_big_point(i-window_x, y_start-window_y);
+						draw_big_point(i-window_x, y_end-window_y);
 					}
 					for(i = min(y_start, y_end); i <= max(y_start, y_end); i++)
 					{
-						draw_big_point(x_start-win_x, i-win_y, win_x, win_y);
-						draw_big_point(x_end-win_x, i-win_y, win_x, win_y);
+						draw_big_point(x_start-window_x, i-window_y);
+						draw_big_point(x_end-window_x, i-window_y);
 					}
 					command = PAINT_PEN;
 				}
 			}
 			else if(command == PAINT_TEXT)
 			{
-				//current_color = word color
 				if(current_color == COLOR_WHITE)
 					current_color = COLOR_BLACK;
 				if(mouse->isClick == 1 && mouse->isDragging == 0)
@@ -424,21 +437,21 @@ draw(uint x, uint y, uint win_x, uint win_y, struct EventState* mouse)
 					y_end = mouse->y_end;
 					if(max(x_start, x_end) - min(x_start, x_end) < line_width*2 || max(y_start, y_end) - min(y_start, y_end) < line_width*2 || x_start < CANVAS_WIDTH_BEGIN || y_start < CANVAS_HEIGHT_BEGIN || x_end < CANVAS_WIDTH_BEGIN || y_end < CANVAS_HEIGHT_BEGIN)
 						return;
-					int x1 = min(x_start, x_end);
-					int x2 = max(x_start, x_end);
-					int y1 = min(y_start, y_end);
-					int y2 = max(y_start, y_end);
 					int i;
-					for(i = x1; i <= x2; i++)
+					for(i = min(x_start, x_end); i <= max(x_start, x_end); i++)
 					{
-						draw_big_point(i-win_x, y_start-win_y, win_x, win_y);
-						draw_big_point(i-win_x, y_end-win_y, win_x, win_y);
+						draw_big_point(i-window_x, y_start-window_y);
+						draw_big_point(i-window_x, y_end-window_y);
 					}
-					for(i = y1; i <= y2; i++)
+					for(i = min(y_start, y_end); i <= max(y_start, y_end); i++)
 					{
-						draw_big_point(x_start-win_x, i-win_y, win_x, win_y);
-						draw_big_point(x_end-win_x, i-win_y, win_x, win_y);
+						draw_big_point(x_start-window_x, i-window_y);
+						draw_big_point(x_end-window_x, i-window_y);
 					}
+					x1 = min(x_start, x_end);
+					x2 = max(x_start, x_end);
+					y1 = min(y_start, y_end);
+					y2 = max(y_start, y_end);
 					command = PAINT_PEN;
 				}
 			}

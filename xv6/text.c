@@ -117,12 +117,12 @@ kbdText(char ch, int flag)
 {
 	if(flag == KBD_LEFT)
 	{
-		if(cursor != 0)
+		if(cursor > 0)
 			cursor--;
 	}
 	else if(flag == KBD_RIGHT)
 	{
-		if(cursor != text_length)
+		if(cursor < text_length)
 			cursor++;
 	}
 	else if (flag == KBD_UP)
