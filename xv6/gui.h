@@ -61,7 +61,6 @@
 #define KBD_DOWN -4
 #define KBD_ESC -5
 #define KBD_END -6
-<<<<<<< HEAD
 #define KBD_INC -7
 #define KBD_DEC -8
 
@@ -83,7 +82,5 @@
 
 void drawWindow(int id, int posX, int posY);
 int drawWord(int id, int posX, int posY, unsigned short color);
-=======
->>>>>>> origin/master
 
 #endif
