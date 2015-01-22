@@ -5,6 +5,7 @@ OBJS = \
 	exec.o\
 	file.o\
 	fs.o\
+	folder.o\
 	gui.o\
 	ide.o\
 	ioapic.o\
