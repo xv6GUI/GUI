@@ -8,6 +8,7 @@
 #include "win32/word.h"
 #include "win32/icon.h"
 #include "win32/file.h"
+#include "win32/taiko.h"
 #include "win32/cursor.h"
 #include "win32/cursor_help.h"
 #include "win32/font.h"
@@ -134,6 +135,24 @@ void drawString(const char* s, int posX, int posY, unsigned short color){
 	}
 }
 
+void drawTaiko(int id, int posX, int posY){
+	int i, j;
+	for (i = 0; i < TAIKO_WIDTH; i++){
+		for (j = 0; j < TAIKO_HEIGHT; j++){
+			SCREEN_COLOR[posX+i][posY+j] = TAIKO[id][i][j];
+		}
+	}
+}
+
+void drawTaikoFull(int array[3][4], int x, int y){
+	int OriX = x + 32, OriY = y + 40;
+	int i, j;
+	for (i = 0; i < 3; i++){
+		for (j = 0; j < 4; j++){
+			drawTaiko(array[i][j],OriX+j*GAP, OriY+i*GAP);
+		}
+	}
+}
 //init and redraw
 void renderGUI(int id)
 {
@@ -155,11 +174,11 @@ void initGUI()
 	drawString("paint", ICON_X1, ICON_Y4, 0xffff);
 	drawIcon(4, ICON_X1, ICON_Y5);
 	drawString("trash", ICON_X1, ICON_Y5, 0xffff);
-	//drawIcon(6, ICON_X2, ICON_Y1);
-	
+	drawIcon(6, ICON_X2, ICON_Y1);
+	drawString("taiko", ICON_X2, ICON_Y1, 0xffff);
 	renderScreen(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-        int i, j;
+    	int i, j;
 	for (i = 0; i < CURSOR_WIDTH; i++){
 		for (j = 0; j < CURSOR_HEIGHT; j++){
 			uint offset = (j + mousePosY) * SCREEN_WIDTH + (i + mousePosX);
@@ -270,6 +289,8 @@ redrawScreen()
 	drawString("paint", ICON_X1, ICON_Y4, 0xffff);
 	drawIcon(4, ICON_X1, ICON_Y5);
 	drawString("trash", ICON_X1, ICON_Y5, 0xffff);
+	drawIcon(6, ICON_X2, ICON_Y1);
+	drawString("taiko", ICON_X2, ICON_Y1, 0xffff);
 	
 	struct Window* p = getLastWindow();
 	if(p != 0)

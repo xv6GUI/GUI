@@ -1,3 +1,9 @@
+/**************************************************************************
+**  kbd.h
+**  keyboard driver
+**  author:         xuziru
+**  revised time:   2014.1.16
+***************************************************************************/
 // PC keyboard interface constants
 
 #define KBSTATP         0x64    // kbd controller status port(I)

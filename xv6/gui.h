@@ -19,7 +19,7 @@
 
 //position of icon
 #define ICON_X1 40
-#define ICON_X2 160
+#define ICON_X2 150
 
 #define ICON_Y1 30
 #define ICON_Y2 140
@@ -32,6 +32,7 @@
 #define WINDOW_TEXT 1
 #define WINDOW_PAINT 2
 #define WINDOW_TRASH 3
+#define WINDOW_TAIKO 4
 
 
 
@@ -77,6 +78,10 @@
 #define CANVAS_HEIGHT 347
 #define CANVAS_WIDTH 570
 
+//taiko
+#define TAIKO_WIDTH 134
+#define TAIKO_HEIGHT 134
+#define GAP 134
 void	drawWindow(int id, int posX, int posY);
 void	redrawScreen();
 int	drawWord(int id, int posX, int posY, unsigned short color);

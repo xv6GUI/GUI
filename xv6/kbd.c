@@ -1,3 +1,9 @@
+/**************************************************************************
+**  kbd.c
+**  keyboard driver
+**  author:   xuziru
+**  time:     2014.1.16
+***************************************************************************/
 #include "types.h"
 #include "x86.h"
 #include "defs.h"
@@ -130,6 +136,9 @@ kbdintr(void)
       case WINDOW_COMPUTER:
         folderkey(flag_event);
         break;
+     case WINDOW_TAIKO:
+	  taikoGame(flag_event, 100, 40);
+	  break;
     }
     //kbdText(result, flag_event);
     //folderKey(flag_event);

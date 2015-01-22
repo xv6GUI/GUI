@@ -25,6 +25,7 @@ OBJS = \
 	syscall.o\
 	sysfile.o\
 	sysproc.o\
+	taiko.o\
 	text.o\
 	timer.o\
 	trapasm.o\

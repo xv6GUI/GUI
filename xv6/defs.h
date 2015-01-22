@@ -152,6 +152,10 @@ int             fetchint(struct proc*, uint, int*);
 int             fetchstr(struct proc*, uint, char**);
 void            syscall(void);
 
+//taiko.c
+int 			taikoGame(int, int, int);
+int 			checkGame();
+
 // text.c
 void			kbdText(char, int);
 void			initText(uint, uint);
@@ -195,8 +199,15 @@ void            cleanMouse();
 void            drawMouse(int, int);
 void            drawBackground(int);
 void            renderGUI(int);
-void			drawIcon(int, int, int);
-void 			drawWindow(int id, int posX, int posY);
+void		drawIcon(int, int, int);
+void 		drawWindow(int id, int posX, int posY);
 void            initGUI();
+void		drawTaikoFull(int array[3][4], int x, int y);
+
+
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))
+
+
+
+

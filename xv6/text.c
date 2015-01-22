@@ -1,3 +1,11 @@
+/**************************************************************************
+**  text.c
+**  text application
+**  author: 	xuziru
+**  time:   	2014.1.20
+**	function: 	normal input
+				"up, down, left, right, del, end" support
+***************************************************************************/
 #include "types.h"
 #include "defs.h"
 #include "param.h"

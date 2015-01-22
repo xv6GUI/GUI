@@ -1,3 +1,16 @@
+/**************************************************************************
+**  draw.c
+**  paint application
+**  author: 	xuziru
+**  time:   	2014.1.22
+**	funciton:	draw points and lines
+				eraser
+				draw rectangle
+				text area
+**	attention:	color of points, lines, rectangles and texts 
+				depends on what you choose, 20 colors in all.
+***************************************************************************/
+
 #include "types.h"
 #include "defs.h"
 #include "param.h"

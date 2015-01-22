@@ -298,6 +298,20 @@ mouse_print(struct Mouse* p)
             p->x_movement, p->y_movement);
 }
 
+int
+isInCurrentWindow(uint x, uint y)
+{
+	if(currentWindow == 0)	return 0;
+
+	uint winX = currentWindow->x;
+	uint winY = currentWindow->y;
+	if(winX <= x && x <= winX + WINDOW_WIDTH && winY <= y && y <= winY + WINDOW_HEIGHT)
+	{
+		return 1;
+	}
+	else	return 0;
+}
+
 void
 event_left_btn_up(void)
 {
@@ -306,17 +320,11 @@ event_left_btn_up(void)
     history.isDragging = 0;
     history.isClick = 0;
 
-    // 点击桌面图标改变当前的窗口
-    if(x <= ICON_X1 + ICON_WIDTH && x >= ICON_X1)
-    {
-	openApp(x, y);
-    }
-
     if(currentWindow != 0)    
     {
 	uint win_x = currentWindow->x;
    	uint win_y = currentWindow->y;
-	
+
 	if(win_x <= x && x <= win_x + WINDOW_WIDTH && win_y <= y && y <= win_y + WINDOW_HEIGHT)
 	{
 		//关闭当前窗口
@@ -343,6 +351,12 @@ event_left_btn_up(void)
 	}
      }
 
+    // 点击桌面图标改变当前的窗口
+    if(x <= ICON_X2 + ICON_WIDTH && x >= ICON_X1 && !isInCurrentWindow(x, y))
+    {
+	openApp(x, y);
+    }
+
     //根据当前窗口而获得当前app
     switch(currentApp)
     {
@@ -350,11 +364,10 @@ event_left_btn_up(void)
 		break;
 	case 2: folderclick(x, y, Homework);
 		break;
-	case 3: break;
-	case 4: break;
-	case 5: break;
+	default: break;
     }
 }
+
 void openAppByWindow(struct Window* cur)
 {
 	int type = cur->type;
@@ -374,54 +387,68 @@ void openAppByWindow(struct Window* cur)
 
 void openApp(uint x, uint y)
 {
-    if(y >= ICON_Y5 && y <= ICON_Y5 + ICON_HEIGHT)
-    {
-        currentApp = 5;
-        currentWindow = addWindow(WINDOW_TRASH);
-        x = currentWindow->x;
-        y = currentWindow->y;
+	if(x <= ICON_X2)
+	{
+	    if(y >= ICON_Y5 && y <= ICON_Y5 + ICON_HEIGHT)
+	    {
+	        currentApp = 5;
+	        currentWindow = addWindow(WINDOW_TRASH);
+	        x = currentWindow->x;
+	        y = currentWindow->y;
 
-        drawWindow(WINDOW_TRASH, x, y);
-        renderScreen(x, y, WINDOW_WIDTH, WINDOW_HEIGHT);	
-    }
-    else if(y >= ICON_Y4 && y <= ICON_Y4 + ICON_HEIGHT)
-    {
-        currentApp = 4;
-        currentWindow = addWindow(WINDOW_PAINT);
-        x = currentWindow->x;
-        y = currentWindow->y;
+	        drawWindow(WINDOW_TRASH, x, y);
+	        renderScreen(x, y, WINDOW_WIDTH, WINDOW_HEIGHT);	
+	    }
+	    else if(y >= ICON_Y4 && y <= ICON_Y4 + ICON_HEIGHT)
+	    {
+	        currentApp = 4;
+	        currentWindow = addWindow(WINDOW_PAINT);
+	        x = currentWindow->x;
+	        y = currentWindow->y;
 		
-        drawWindow(WINDOW_PAINT, x, y);
-        init_draw(x, y);
-        renderScreen(x, y, WINDOW_WIDTH, WINDOW_HEIGHT);	
-    }
-    else if(y >= ICON_Y3 && y <= ICON_Y3 + ICON_HEIGHT)
-    {
-	    currentApp = 3;
-	    currentWindow = addWindow(WINDOW_TEXT);
-	    x = currentWindow->x;
-	    y = currentWindow->y;
+	        drawWindow(WINDOW_PAINT, x, y);
+	        init_draw(x, y);
+	        renderScreen(x, y, WINDOW_WIDTH, WINDOW_HEIGHT);	
+	    }
+	    else if(y >= ICON_Y3 && y <= ICON_Y3 + ICON_HEIGHT)
+	    {
+		    currentApp = 3;
+		    currentWindow = addWindow(WINDOW_TEXT);
+		    x = currentWindow->x;
+		    y = currentWindow->y;
 
-	    drawWindow(WINDOW_TEXT, x, y);
-	    initText(x, y);
-	    renderScreen(x, y, WINDOW_WIDTH, WINDOW_HEIGHT);
-    }
-    else if(y >= ICON_Y2 && y <= ICON_Y2 + ICON_HEIGHT){
-	    currentApp = 2;
-	    currentWindow = addWindow(WINDOW_COMPUTER);
-	    setWindowNode(currentWindow, Homework);
-	    x = currentWindow->x;
-	    y = currentWindow->y;
-	    folderinit(x, y, Homework);
-  	}
-    else if(y >= ICON_Y1 && y <= ICON_Y1 + ICON_HEIGHT){
-	    currentApp = 1;
-	    currentWindow = addWindow(WINDOW_COMPUTER);
-	    setWindowNode(currentWindow, Computer);
-	    x = currentWindow->x;
-	    y = currentWindow->y;
-	    folderinit(x, y, Computer);
+		    drawWindow(WINDOW_TEXT, x, y);
+		    initText(x, y);
+		    renderScreen(x, y, WINDOW_WIDTH, WINDOW_HEIGHT);
+	    }
+	    else if(y >= ICON_Y2 && y <= ICON_Y2 + ICON_HEIGHT){
+		    currentApp = 2;
+		    currentWindow = addWindow(WINDOW_COMPUTER);
+		    setWindowNode(currentWindow, Homework);
+		    x = currentWindow->x;
+		    y = currentWindow->y;
+		    folderinit(x, y, Homework);
+	  	}
+	    else if(y >= ICON_Y1 && y <= ICON_Y1 + ICON_HEIGHT){
+		    currentApp = 1;
+		    currentWindow = addWindow(WINDOW_COMPUTER);
+		    setWindowNode(currentWindow, Computer);
+		    x = currentWindow->x;
+		    y = currentWindow->y;
+		    folderinit(x, y, Computer);
+		}
 	}
+	else if(y >= ICON_Y1 && y <= ICON_Y2){
+		currentApp = 6;
+		currentWindow = addWindow(WINDOW_TAIKO);
+		x = currentWindow->x;
+		y = currentWindow->y;
+		
+		drawWindow(WINDOW_TAIKO, x, y);
+		drawWord('A', WINDOW_X+2*WORD_GAP+25, WINDOW_Y+47, 0);
+		drawWord('B', WINDOW_X+3*WORD_GAP+25, WINDOW_Y+47, 0);
+		taikoGame(40, 100, 40);
+	}	
 }
 
 void event_left_btn_down(void)
