@@ -41,12 +41,12 @@ drawText()
 		drawCursor(line_len, height_len);
 	while(i < MAX_LENGTH && text[i] != '\0')
 	{
-		if(line_len > WINDOW_WIDTH + 2*WIDTH_BEGIN || text[i] == '\n')
+		if(line_len > WINDOW_WIDTH + 2*WIDTH_BEGIN || text[i] == '\n' || text[i] == '\r')
 		{
 			height_len += WINDOW_WIDTH_HEIGHT;
 			line_len = x_start + WIDTH_BEGIN;
 		}
-		if(text[i] != '\n')
+		if(text[i] != '\n' && text[i] != '\r')
 		{
 			text_word_width[i] = drawWord(text[i], line_len, height_len, 0x0000);
 			line_len += text_word_width[i];
@@ -84,7 +84,7 @@ initText(uint x, uint y)
 void
 addWord(char ch)
 {
-	if(text_length >= MAX_LENGTH - 1 || (full == 1 && ch == '\n'))
+	if(text_length >= MAX_LENGTH - 1 || (full == 1 && (ch == '\n' || ch == '\r')))
 		return;
 
 	int i;
@@ -137,7 +137,7 @@ kbdText(char ch, int flag)
 				cursor = i + 1;
 				break;
 			}
-			else if(text[i] == '\n')
+			else if(text[i] == '\n' || text[i] == '\r')
 			{
 				cursor = i;
 				break;
@@ -152,7 +152,7 @@ kbdText(char ch, int flag)
 		while(1)
 		{
 			len += text_word_width[i];
-			if(len > WINDOW_WIDTH || i == text_length || text[i] == '\n')
+			if(len > WINDOW_WIDTH || i == text_length || text[i] == '\n' || text[i] == '\r')
 			{
 				cursor = i;
 				break;
@@ -166,7 +166,7 @@ kbdText(char ch, int flag)
 	}
 	else if(flag < 0)
 		return;
-	else if((ch >= 0x20 && ch <= 0x7E) || ch == '\n')
+	else if((ch >= 0x20 && ch <= 0x7E) || ch == '\n' || ch == '\r')
 		addWord(ch);
 	else if(ch == '\b')
 		deleteWord();
