@@ -26,8 +26,9 @@ main(void)
   uartinit();      // serial port
   
   InitNode();
+
+  initWindow();
   initFileList();	
-  
   initGUI();
   kinit();         // initialize memory allocator
   jkstack();       // call mainc() on a properly-allocated stack 

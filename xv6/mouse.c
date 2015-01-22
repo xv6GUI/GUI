@@ -16,6 +16,8 @@
 #include "spinlock.h"
 #include "mouse.h"
 #include "gui.h"
+#include "folder.h"
+#include "window.h"
 
 //#define DEBUG 0
 
@@ -28,6 +30,8 @@ static struct EventState history;
 //static uchar data_union[3];
 static uint count; 
 static uint currentApp;
+static struct Window* currentWindow;
+
 enum MouseState mouse_state;
 
 int MOUSE_POSX_MAX;
@@ -135,7 +139,7 @@ mouse_handler(void)
         history.x_end = mouse_pos.x;
         history.y_end = mouse_pos.y;
         history.btn_left_down = 0;
-	    event_left_btn_up();
+	event_left_btn_up();
     }    
 
     if(packet.btn_right)
@@ -151,11 +155,9 @@ mouse_handler(void)
     
     switch(currentApp)
     {
-        case 4:   
-            draw(mouse_pos.x - WINDOW_X, mouse_pos.y - WINDOW_Y, WINDOW_X, WINDOW_Y, &history);
-          //cprintf("draw :%d, %d\n", mouse_pos.x, mouse_pos.y);
-         	  break;
-        default:  break;
+        case 4:   	draw(mouse_pos.x - WINDOW_X, mouse_pos.y - WINDOW_Y, WINDOW_X, WINDOW_Y, &history);
+			break;
+        default:  	break;
     }
 
 #ifdef DEBUG
@@ -193,14 +195,9 @@ mouseinit(void)
     mouse_read();
     mouse_write(10);
     mouse_read();
-    
-    //outb(0x64, 0xd4);		//下一个数据发给鼠标
-    //outb(0x60, 0xf4);		//允许鼠标发送数据
+ 
     mouse_write(0xf4);
     mouse_read();    
-    //inb(0x60);
-    //outb(0x64, 0x60); 	//下一个数据写入鼠标控制寄存器
-    //outb(0x60, 0x47);		//允许键盘和鼠标，允许中断
 
     initlock(&mouselock, "mouse");
 #ifdef DEBUG
@@ -220,9 +217,9 @@ mouseintr(void)
     if(mouse_state == IGNORE)    return;
 
     acquire(&mouselock);
-//#ifdef DEBUG
-//    cprintf("acquire mouse lock in mouseintr.\n");
-//#endif
+#ifdef DEBUG
+    cprintf("acquire mouse lock in mouseintr.\n");
+#endif
     uint data = inb(0x60);
     count++;
 
@@ -267,9 +264,9 @@ mouseintr(void)
     }
 
     release(&mouselock);
-//#ifdef DEBUG
-//    cprintf("release mouse lock in mouseintr.\n");
-//#endif
+#ifdef DEBUG
+    cprintf("release mouse lock in mouseintr.\n");
+#endif
 }
 
 void
@@ -312,45 +309,77 @@ event_left_btn_up(void)
     history.isDragging = 0;
     history.isClick = 0;
 
+    // 点击桌面图标改变当前的窗口
     if(x <= ICON_X1 + ICON_WIDTH && x >= ICON_X1)
     {
         if(y >= ICON_Y5 && y <= ICON_Y5 + ICON_HEIGHT)
         {
-#ifdef DEBUG
-            cprintf("ICON 5 clicked.\n");
-#endif
+	    currentApp = 5;
+	    currentWindow = addWindow(WINDOW_TRASH);
+	    x = currentWindow->x;
+	    y = currentWindow->y;
+
+	    drawWindow(WINDOW_TRASH, x, y);
+	    renderScreen(x, y, WINDOW_WIDTH, WINDOW_HEIGHT);	
         }
         else if(y >= ICON_Y4 && y <= ICON_Y4 + ICON_HEIGHT)
         {
-		currentApp = 4;
-		drawWindow(2, WINDOW_X, WINDOW_Y);
-        init_draw();
-		renderScreen(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);	
+	    currentApp = 4;
+	    currentWindow = addWindow(WINDOW_PAINT);
+	    x = currentWindow->x;
+	    y = currentWindow->y;
 		
+	    drawWindow(WINDOW_PAINT, x, y);
+	    renderScreen(x, y, WINDOW_WIDTH, WINDOW_HEIGHT);	
         }
         else if(y >= ICON_Y3 && y <= ICON_Y3 + ICON_HEIGHT)
         {
-		currentApp = 3;
-		drawWindow(1, WINDOW_X, WINDOW_Y);
-		// drawWord('a', WINDOW_X+25, WINDOW_Y+40, 0);
-		// drawWord('b', WINDOW_X+WORD_GAP+25, WINDOW_Y+40, 0);
-		// drawWord('A', WINDOW_X+2*WORD_GAP+25, WINDOW_Y+40, 0);
-		// drawWord('B', WINDOW_X+3*WORD_GAP+25, WINDOW_Y+40, 0);
-		initText(WINDOW_X, WINDOW_Y);
-        renderScreen(WINDOW_X, WINDOW_Y, WINDOW_WIDTH, WINDOW_HEIGHT);
+	    currentApp = 3;
+	    currentWindow = addWindow(WINDOW_TEXT);
+	    x = currentWindow->x;
+	    y = currentWindow->y;
+
+	    drawWindow(WINDOW_TEXT, x, y);
+	    initText(x, y);
+	    renderScreen(x, y, WINDOW_WIDTH, WINDOW_HEIGHT);
         }
-        else if(y >= ICON_Y2 && y <= ICON_Y2 + ICON_HEIGHT)
-        {
-#ifdef DEBUG
-            cprintf("ICON 2 clicked.\n");
-#endif
-        }
-        else if(y >= ICON_Y1 && y <= ICON_Y1 + ICON_HEIGHT)
-        {
-#ifdef DEBUG
-            cprintf("ICON 1 clicked.\n");
-#endif
-        }
+        else if(y >= ICON_Y2 && y <= ICON_Y2 + ICON_HEIGHT){
+	    currentApp = 2;
+	    currentWindow = addWindow(WINDOW_COMPUTER);
+	    setWindowNode(currentWindow, Homework);
+	    x = currentWindow->x;
+	    y = currentWindow->y;
+	    folderinit(x, y, Homework);
+  	}
+        else if(y >= ICON_Y1 && y <= ICON_Y1 + ICON_HEIGHT){
+	    currentApp = 1;
+	    currentWindow = addWindow(WINDOW_COMPUTER);
+	    setWindowNode(currentWindow, Computer);
+	    x = currentWindow->x;
+	    y = currentWindow->y;
+	    folderinit(x, y, Computer);
+	}
+    }
+
+    //点击窗口改变当前窗口
+    struct Window* temp = getWindowByPosition(x, y);
+    if(!temp)
+    {
+        setFocus(temp);
+        currentWindow = temp;
+	currentApp = temp->type;
+    }
+
+    //根据当前窗口而获得当前app
+    switch(currentApp)
+    {
+        case 1: folderclick(x, y, Computer);
+		break;
+	case 2: folderclick(x, y, Homework);
+		break;
+	case 3: break;
+	case 4: break;
+	case 5: break;
     }
 }
 
