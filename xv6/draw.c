@@ -484,6 +484,19 @@ draw_big_point(uint x, uint y)
 }
 
 void
+init_draw()
+{
+	int i, j;
+	for(i = 0; i < CANVAS_WIDTH; i++)
+	{
+		for(j = 0; j < CANVAS_HEIGHT; j++)
+		{
+			canvas[i][j] = COLOR_WHITE;
+		}
+	}
+}
+
+void
 draw(uint x, uint y, uint win_x, uint win_y, struct EventState* mouse)
 {
 	window_x = win_x;
