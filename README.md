@@ -10,16 +10,10 @@
 * Xv6: source code based on [@vx6](git://pdos.csail.mit.edu/xv6/xv6.git)
 
 ## What do we revised?
-* `Driver`:  
-             kbd.h    kbd.c
-             mouse.h  mouse.c
-* `Folder`:
-             node.h    node.c
-             window.h  window.c  (support multiple windows)
-* `App`:
-            paint.c
-            text.c
-            taiko.c, taiko.h
+* `Driver`:  kbd.h, kbd.c, mouse.h, mouse.c
+* `Folder`:  node.h, node.c
+* `Window`:  window.h  window.c  (support multiple windows)
+* `App`:  paint.c, text.c, taiko.c, taiko.h
 
 ## About Author
 * THSS12 Group
