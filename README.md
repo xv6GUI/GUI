@@ -1,6 +1,6 @@
 
 ## What is this project for?
-* GUI ( Graphical User Interface ) special for xv6
+* `Gui`:  ( Graphical User Interface ) special for xv6
 * `Lib`: We provide GUI lib  such as drawPoint, drawLine, drawWindow, drawIcon... ect
 * `Driver`: Mouse driver and keyboard driver(revised)
 * `APP`:    Paint, Notepad, Game(Taiko)
@@ -17,7 +17,7 @@
 * `Folder`:
             node.h    node.c
             window.h  window.c  (support multiple windows)
-*`App`:
+* `App`:
             paint.c
             text.c
             taiko.c, taiko.h
