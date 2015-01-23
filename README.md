@@ -1,4 +1,3 @@
-
 ## What is this project for?
 * `Gui`:  ( Graphical User Interface ) special for xv6
 * `Lib`: We provide GUI lib  such as drawPoint, drawLine, drawWindow, drawIcon... ect
@@ -15,8 +14,8 @@
              kbd.h    kbd.c
              mouse.h  mouse.c
 * `Folder`:
-            node.h    node.c
-            window.h  window.c  (support multiple windows)
+             node.h    node.c
+             window.h  window.c  (support multiple windows)
 * `App`:
             paint.c
             text.c
