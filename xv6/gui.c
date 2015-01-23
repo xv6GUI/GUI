@@ -14,6 +14,7 @@
 #include "win32/font.h"
 
 static unsigned short SCREEN_COLOR[SCREEN_WIDTH][SCREEN_HEIGHT];
+static unsigned short TRASH_BACK[ICON_WIDTH][ICON_HEIGHT];
 static unsigned short mouseDeskOri[CURSOR_WIDTH][CURSOR_HEIGHT];
 
 static unsigned short *VESA_ADDR = (unsigned short*)0xe0000000;
@@ -87,7 +88,7 @@ void drawBackground(int id)
 
 void drawIcon(int id, int posX, int posY){
 	int i, j, alpha;
-    unsigned short a, b;
+    	unsigned short a, b;
 	unsigned int mid; 
 
 	for (i = 0; i < ICON_WIDTH; i++){
@@ -153,6 +154,7 @@ void drawTaikoFull(int array[3][4], int x, int y){
 		}
 	}
 }
+
 //init and redraw
 void renderGUI(int id)
 {
@@ -183,6 +185,11 @@ void initGUI()
 		for (j = 0; j < CURSOR_HEIGHT; j++){
 			uint offset = (j + mousePosY) * SCREEN_WIDTH + (i + mousePosX);
 			mouseDeskOri[i][j] = *(VESA_ADDR + offset);
+		}
+	}
+	for(i = 0; i < ICON_WIDTH; i++){
+		for(j = 0; j < ICON_HEIGHT; j++){
+			TRASH_BACK[i][j] = SCREEN_COLOR[i+ICON_X1][j+ICON_Y5];
 		}
 	}
 	drawMouse(mousePosX,mousePosY);
@@ -287,7 +294,11 @@ redrawScreen()
 	drawString("note", ICON_X1+5, ICON_Y3, 0xffff);
 	drawIcon(3, ICON_X1, ICON_Y4);
 	drawString("paint", ICON_X1, ICON_Y4, 0xffff);
-	drawIcon(4, ICON_X1, ICON_Y5);
+	
+	if(getTrashState())
+		drawIcon(4, ICON_X1, ICON_Y5);
+	else	drawIcon(5, ICON_X1, ICON_Y5);
+
 	drawString("trash", ICON_X1, ICON_Y5, 0xffff);
 	drawIcon(6, ICON_X2, ICON_Y1);
 	drawString("taiko", ICON_X2, ICON_Y1, 0xffff);
@@ -337,5 +348,32 @@ void drawFileString(const char* s, int posX, int posY, unsigned short color){
 		x += 10;
 	}
 }
+
+void	drawFullTrash(){
+	int i, j;
+
+	for(i = 0; i < ICON_WIDTH; i++){
+		for(j = 0; j < ICON_HEIGHT; j++){
+			SCREEN_COLOR[i+ICON_X1][j+ICON_Y5] = TRASH_BACK[i][j];
+		}
+	}
+	drawIcon(5, ICON_X1, ICON_Y5);
+}
+
+void	drawTrash(){
+	int i, j;
+
+	for(i = 0; i < ICON_WIDTH; i++){
+		for(j = 0; j < ICON_HEIGHT; j++){
+			SCREEN_COLOR[i+ICON_X1][j+ICON_Y5] = TRASH_BACK[i][j];
+		}
+	}
+	drawIcon(4, ICON_X1, ICON_Y5);
+}
+
+
+
+
+
 
 

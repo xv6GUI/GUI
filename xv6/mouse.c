@@ -318,7 +318,8 @@ event_left_btn_up(void)
     uint x = mouse_pos.x;
     uint y = mouse_pos.y;
     history.isDragging = 0;
-    history.isClick = 0;
+    history.isClick = 0; 
+    struct Node* cur;
 
     if(currentWindow != 0)    
     {
@@ -357,15 +358,15 @@ event_left_btn_up(void)
 	openApp(x, y);
     }
 
-    //根据当前窗口而获得当前app
-    switch(currentApp)
-    {
-        case 1: folderclick(x, y, Computer);
-		break;
-	case 2: folderclick(x, y, Homework);
-		break;
-	default: break;
-    }
+    
+    cur = getCurrentFolder();
+    if(cur == 0)	return;
+    if(cur == Computer)	
+        folderclick(x, y, Computer);
+    else if(cur == Homework)
+        folderclick(x, y, Homework);
+    else if(cur == Trash)
+        trashclick(x, y);
 }
 
 void openAppByWindow(struct Window* cur)
@@ -393,10 +394,12 @@ void openApp(uint x, uint y)
 	    {
 	        currentApp = 5;
 	        currentWindow = addWindow(WINDOW_TRASH);
+		setWindowNode(currentWindow, Trash);
 	        x = currentWindow->x;
 	        y = currentWindow->y;
-
+		
 	        drawWindow(WINDOW_TRASH, x, y);
+		folderIconInit(x, y, Trash);
 	        renderScreen(x, y, WINDOW_WIDTH, WINDOW_HEIGHT);	
 	    }
 	    else if(y >= ICON_Y4 && y <= ICON_Y4 + ICON_HEIGHT)

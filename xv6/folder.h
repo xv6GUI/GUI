@@ -18,7 +18,7 @@
 #define DELETE_X2 250
 
 #define RETURN_X1 255
-#define RETURN_x2 340
+#define RETURN_X2 340
 
 #define COPY_X1 345
 #define COPY_X2 430
@@ -42,13 +42,25 @@ enum FileEvent{
 };
 
 struct Node* Computer;
-struct Node* Homework;  
+struct Node* Homework;
+struct Node* Trash;  
 
 void folderinit(uint win_x, uint win_y, struct Node* folder);
+void folderIconInit(uint win_x, uint win_y, struct Node* folder);
 void folderclick(uint posX, uint posY, struct Node* folder);
+void trashclick(uint posX, uint posY);
+
+
 void initFileList();
 void cancelClick();
+
+void emptyTrash();
+int  getTrashState();
+void returnAllTrash();
+
+void returnParent();
 void folderkey(int key);
+struct Node* getCurrentFolder();
 
 
 

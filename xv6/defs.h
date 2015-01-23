@@ -8,6 +8,7 @@ struct spinlock;
 struct stat;
 struct EventState;
 struct Window;
+struct Node;
 
 // bio.c
 void            binit(void);

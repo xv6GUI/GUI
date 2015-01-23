@@ -13,7 +13,7 @@
 #include "window.h"
 
 enum FileEvent file;
-struct Node* currentFolder;
+struct Node* currentFolder = 0;
 
 uint folderX, folderY;  //record the folder window start x, y
 
@@ -35,8 +35,10 @@ isInFolder(uint x, uint y)
 }
 
 void
-folderinit(uint win_x, uint win_y, struct Node* folder)
+folderIconInit(uint win_x, uint win_y, struct Node* folder)
 {
+	if(folder == 0)	return;
+
 	//cprintf(folder->Name);
 	int x, y;
 	uint fileNum = 1;
@@ -44,9 +46,7 @@ folderinit(uint win_x, uint win_y, struct Node* folder)
 	folderY = win_y;
 	currentFolder = folder;
 	x = 0; y=0;
-	
-	drawWindow(0, win_x, win_y);
-		
+			
 	while(1)
 	{	
 		struct Node* child = GetNode(folder, fileNum);
@@ -59,13 +59,20 @@ folderinit(uint win_x, uint win_y, struct Node* folder)
 
 		drawFileIcon(child->NodeType, x, y);
 		if(child->NodeType == 0)
-			drawFileString(child->Name, x+5, y, 0);
+			drawFileString(child->Name, x+5, y+5, 0);
 		else
-			drawFileString(child->Name, x, y, 0x0);
+			drawFileString(child->Name, x, y+5, 0x0);
 		//drawString(child->Name, x-5, y-12, 0x0);
 		fileNum++;
 	}
+}
 
+
+void
+folderinit(uint win_x, uint win_y, struct Node* folder)
+{
+	drawWindow(WINDOW_COMPUTER, win_x, win_y);
+	folderIconInit(win_x, win_y, folder);
 	renderScreen(win_x, win_y, WINDOW_WIDTH, WINDOW_HEIGHT);
 }
 
@@ -109,8 +116,60 @@ void
 deleteFile()
 {
 	if(!hasChoosed)	return;
+	Remove_Node(Trash, clickFile);
 	Delete_Node(currentFolder, chooseId);
+	drawFullTrash();
+	renderScreen(ICON_X1, ICON_Y5, 60, 60);
+
 	cancelClick();
+}
+
+void
+emptyTrash()
+{
+	drawTrash();
+	renderScreen(ICON_X1, ICON_Y5, 60, 60);
+
+	int x, y;
+	uint fileNum = 1;
+	x = 0; y=0;
+			
+	while(1)
+	{	
+		struct Node* child = GetNode(Trash, fileNum);
+		
+		if(child == 0) break;
+		Delete_Node(Trash, fileNum);
+		fileNum++;
+	}
+	drawTrash();
+	renderScreen(ICON_X1, ICON_Y5, 60, 60);
+
+	drawWindow(WINDOW_TRASH, folderX, folderY);
+	renderScreen(folderX, folderY, WINDOW_WIDTH, WINDOW_HEIGHT);
+}
+
+void
+returnAllTrash()
+{
+	int x, y;
+	uint fileNum = 1;
+	x = 0; y=0;
+
+	while(1)
+	{	
+		struct Node* child = GetNode(Trash, fileNum);
+		if(child == 0) break;
+
+		Remove_Node(Computer, child);		
+		Delete_Node(Trash, fileNum);
+		fileNum++;
+	}
+	drawTrash();
+	renderScreen(ICON_X1, ICON_Y5, 60, 60);
+
+	drawWindow(WINDOW_TRASH, folderX, folderY);
+	renderScreen(folderX, folderY, WINDOW_WIDTH, WINDOW_HEIGHT);
 }
 
 void
@@ -133,6 +192,47 @@ pasteFile()
 void
 folderkey(int key)
 {
+
+}
+
+int
+getTrashState()
+{
+	if(Trash->Firstchild == 0)	return 1;
+	else return 0;
+}
+
+void
+trashclick(uint posX, uint posY)
+{
+	posX -= folderX;
+	posY -= folderY;
+	
+	if(isInFolder(posX, posY))
+	{
+		if(30 <= posY && posY <= 74)
+		{
+			if(posX <= 123)
+			{
+				emptyTrash();
+			}
+			else if(124 <= posX && posX <= 252)
+			{
+				returnAllTrash();
+			}
+		}
+	}
+}
+
+void
+returnParent()
+{
+	if(currentFolder == 0)	return;
+
+	struct Node* parent = currentFolder->Parent;
+	if(parent == 0)	return;
+	folderinit(folderX, folderY, parent);
+	currentFolder = parent;
 }
 
 void
@@ -154,6 +254,7 @@ folderclick(uint posX, uint posY, struct Node* folder)
 			if(NEW_FOLDER_X1 <= posX && posX <= NEW_FOLDER_X2)	createFolder();
 			else if(NEW_FILE_X1 <= posX && posX <= NEW_FILE_X2) 	createFile();
 			else if(DELETE_X1 <= posX && posX <= DELETE_X2)		deleteFile();
+			else if(RETURN_X1 <= posX && posX <= RETURN_X2)		returnParent();
 			else if(COPY_X1 <= posX && posX <= COPY_X2)		copyFile();
 			else if(PASTE_X1 <= posX && posX <= PASTE_X2)		pasteFile();
 			else return;
@@ -189,6 +290,8 @@ folderclick(uint posX, uint posY, struct Node* folder)
 			if(clickFile->NodeType == 0)
 			{
 				folderinit(folderX, folderY, clickFile);
+				currentFolder = clickFile;
+
 				struct Window* temp = getActiveWindow();
 				setWindowNode(temp, clickFile);
 			}
@@ -200,6 +303,12 @@ folderclick(uint posX, uint posY, struct Node* folder)
 			cancelClick();
 		}
 	}
+}
+
+struct Node*
+getCurrentFolder()
+{
+	return currentFolder;
 }
 
 void
@@ -302,6 +411,12 @@ initFileList()
 
 	Computer->Firstchild = Homework;
 	Computer->Lastchild = Snake;
+
+	Trash = RequireNode();
+	strcpy(Trash->Name,"trash");
+	Trash->NodeType = 0;
+	Trash->Parent = 0;
+	Trash->Brother = 0;
 }
 
 

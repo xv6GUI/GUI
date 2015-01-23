@@ -91,5 +91,7 @@ void 	drawFileString(const char* s, int posX, int posY, unsigned short color);
 
 void 	drawFileIcon(int id, int posX, int posY);
 void 	drawChoosedFileIcon(int id, int posX, int posY);
+void	drawFullTrash();
+void	drawTrash();
 
 #endif
